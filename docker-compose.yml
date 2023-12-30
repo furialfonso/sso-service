@@ -1,0 +1,83 @@
+version: '3.9'
+
+services:
+  postgres:
+    container_name: db_users
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+    networks:
+      - local-keycloak
+    ports:
+      - ${POSTGRESQL_PORT}:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRESQL_USER} -d ${POSTGRESQL_PASS}'"
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  keycloak:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    container_name: keycloak
+    image: jboss/keycloak
+    ports:
+      - ${KEYCLOAK_PORT}:${DEFAULT_PORT}
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: postgres
+      DB_DATABASE: ${POSTGRESQL_DB}
+      DB_USER: ${POSTGRESQL_USER}
+      DB_PASSWORD: ${POSTGRESQL_PASS}
+      KEYCLOAK_USER: furialfonso
+      KEYCLOAK_PASSWORD: Admin123
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:${DEFAULT_PORT}/auth"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: always
+    networks:
+      - local-keycloak
+  api:
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    container_name: ${APPLICATION_NAME}_api
+    image: ${REPOSITORY}/${APPLICATION_NAME}_api
+    environment:
+      CONFIG_DIR: /app
+      SCOPE: ${SCOPE}
+      PORT: ${DEFAULT_PORT}
+      GIN_MODE: release
+    build:
+      context: .
+      args:
+        - SCOPE=${SCOPE}
+      dockerfile: ./Dockerfile
+    ports:
+      - ${APP_PORT}:${DEFAULT_PORT}
+    restart: always
+    networks:
+      - local-keycloak
+networks:
+  local-keycloak:
+volumes:
+  postgres-data:
+
+

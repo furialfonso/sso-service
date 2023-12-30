@@ -1,0 +1,7 @@
+name: LOCAL
+mysql:
+  user: cow
+  password: Admin123
+  port: 3306
+  host: localhost
+  schema: cow_local_db

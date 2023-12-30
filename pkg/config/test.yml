@@ -1,0 +1,7 @@
+name: TEST
+mysql:
+  user: cow
+  password: Admin123
+  port: 3306
+  host: cow_test_db
+  schema: cow_test_db

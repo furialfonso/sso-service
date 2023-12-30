@@ -1,0 +1,5 @@
+api/__debug_bin
+coverage.out
+.covignore
+coverage.out
+api/__debug_bin.exe
