@@ -4,6 +4,9 @@ import (
 	"context"
 	"cow_sso/api/dto/request"
 	"cow_sso/api/dto/response"
+	"cow_sso/pkg/platform/keycloak"
+
+	"github.com/Nerzal/gocloak"
 )
 
 type IUserService interface {
@@ -13,10 +16,14 @@ type IUserService interface {
 	Delete(ctx context.Context, nickName string) error
 }
 
-type userService struct{}
+type userService struct {
+	keycloakService keycloak.IKeycloakService
+}
 
-func NewUserService() IUserService {
-	return &userService{}
+func NewUserService(keycloakService keycloak.IKeycloakService) IUserService {
+	return &userService{
+		keycloakService: keycloakService,
+	}
 }
 
 func (us *userService) GetAll(ctx context.Context) ([]response.UserResponse, error) {
@@ -36,7 +43,14 @@ func (us *userService) GetByNickName(ctx context.Context, nickName string) (resp
 }
 
 func (us *userService) Create(ctx context.Context, userRequest request.UserRequest) error {
-	return nil
+	_, err := us.keycloakService.CreateUser(gocloak.User{
+		Username:  userRequest.NickName,
+		FirstName: userRequest.Name,
+		LastName:  userRequest.LastName,
+		Email:     userRequest.Email,
+	})
+
+	return err
 }
 
 func (us *userService) Delete(ctx context.Context, nickName string) error {

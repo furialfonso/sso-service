@@ -149,22 +149,18 @@ func Test_Create(t *testing.T) {
 		{
 			name: "error creating user",
 			input: request.UserRequest{
-				Name:           "a",
-				SecondName:     "b",
-				NickName:       "c",
-				Email:          "d",
-				LastName:       "e",
-				SecondLastName: "f",
+				Name:     "a",
+				NickName: "c",
+				Email:    "d",
+				LastName: "e",
 			},
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
 					f.userService.Mock.On("Create", mock.Anything, request.UserRequest{
-						Name:           "a",
-						SecondName:     "b",
-						NickName:       "c",
-						Email:          "d",
-						LastName:       "e",
-						SecondLastName: "f",
+						Name:     "a",
+						NickName: "c",
+						Email:    "d",
+						LastName: "e",
 					}).Return(errors.New("error creating user"))
 				},
 			},
@@ -173,22 +169,18 @@ func Test_Create(t *testing.T) {
 		{
 			name: "full flow",
 			input: request.UserRequest{
-				Name:           "a",
-				SecondName:     "b",
-				NickName:       "c",
-				Email:          "d",
-				LastName:       "e",
-				SecondLastName: "f",
+				Name:     "a",
+				NickName: "c",
+				Email:    "d",
+				LastName: "e",
 			},
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
 					f.userService.Mock.On("Create", mock.Anything, request.UserRequest{
-						Name:           "a",
-						SecondName:     "b",
-						NickName:       "c",
-						Email:          "d",
-						LastName:       "e",
-						SecondLastName: "f",
+						Name:     "a",
+						NickName: "c",
+						Email:    "d",
+						LastName: "e",
 					}).Return(nil)
 				},
 			},
