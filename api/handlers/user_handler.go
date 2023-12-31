@@ -54,7 +54,7 @@ func (uh *userHandler) GetByNickName(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ApiErrors{
 			Code:    http.StatusInternalServerError,
-			Message: fmt.Sprintf("error getting user %s", nickName),
+			Message: fmt.Sprintf("error getting user %s, err: %s", nickName, err.Error()),
 		})
 		return
 	}
@@ -72,19 +72,20 @@ func (uh *userHandler) Create(c *gin.Context) {
 		return
 	}
 	err := uh.userService.Create(ctx, userRequest)
+	var user string = *userRequest.NickName
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ApiErrors{
 			Code:    http.StatusInternalServerError,
-			Message: fmt.Sprintf("error creating user %s", userRequest.NickName),
+			Message: fmt.Sprintf("error creating user %s, err: %s", user, err.Error()),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, fmt.Sprintf("user %s created", userRequest.NickName))
+	c.JSON(http.StatusOK, fmt.Sprintf("user %s created", user))
 }
 
 func (uh *userHandler) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
-	nickName, exists := c.Params.Get("code")
+	userID, exists := c.Params.Get("code")
 	if !exists {
 		c.JSON(http.StatusBadRequest, response.ApiErrors{
 			Code:    http.StatusBadRequest,
@@ -92,13 +93,13 @@ func (uh *userHandler) Delete(c *gin.Context) {
 		})
 		return
 	}
-	err := uh.userService.Delete(ctx, nickName)
+	userName, err := uh.userService.Delete(ctx, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ApiErrors{
 			Code:    http.StatusInternalServerError,
-			Message: fmt.Sprintf("error deleting user %s", nickName),
+			Message: fmt.Sprintf("error deleting user: %s, err: %s", userID, err.Error()),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, fmt.Sprintf("user %s delete", nickName))
+	c.JSON(http.StatusOK, fmt.Sprintf("user %s delete", userName))
 }

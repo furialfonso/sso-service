@@ -177,7 +177,7 @@ func Test_Create(t *testing.T) {
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
 					f.userService.Mock.On("Create", mock.Anything, request.UserRequest{
-						Name:     "a",
+						Name:     *string{"a"},
 						NickName: "c",
 						Email:    "d",
 						LastName: "e",
