@@ -9,8 +9,7 @@ import (
 	"go.uber.org/dig"
 )
 
-type Dependencies struct {
-}
+type Dependencies struct{}
 
 func BuildDependencies() *dig.Container {
 	Container := dig.New()

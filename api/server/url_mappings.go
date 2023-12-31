@@ -12,7 +12,8 @@ type Router struct {
 }
 
 func NewRouter(pingHandler handlers.IPingHandler,
-	userHandler handlers.IUserHandler) *Router {
+	userHandler handlers.IUserHandler,
+) *Router {
 	return &Router{
 		pingHandler,
 		userHandler,

@@ -2,15 +2,16 @@ package handlers
 
 import (
 	"bytes"
-	"cow_sso/api/dto/request"
-	"cow_sso/api/dto/response"
-	"cow_sso/mocks"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"cow_sso/api/dto/request"
+	"cow_sso/api/dto/response"
+	"cow_sso/mocks"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -27,8 +28,8 @@ type userMocks struct {
 
 func Test_GetAll(t *testing.T) {
 	tests := []struct {
-		name        string
 		mocks       userMocks
+		name        string
 		expNickName int
 	}{
 		{
@@ -72,9 +73,9 @@ func Test_GetAll(t *testing.T) {
 
 func Test_GetByNickName(t *testing.T) {
 	tests := []struct {
+		mocks       userMocks
 		name        string
 		nickName    string
-		mocks       userMocks
 		expNickName int
 	}{
 		{
@@ -133,9 +134,9 @@ func Test_GetByNickName(t *testing.T) {
 
 func Test_Create(t *testing.T) {
 	tests := []struct {
-		name    string
 		input   interface{}
 		mocks   userMocks
+		name    string
 		expCode int
 	}{
 		{
@@ -177,7 +178,7 @@ func Test_Create(t *testing.T) {
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
 					f.userService.Mock.On("Create", mock.Anything, request.UserRequest{
-						Name:     *string{"a"},
+						Name:     "a",
 						NickName: "c",
 						Email:    "d",
 						LastName: "e",
@@ -210,10 +211,10 @@ func Test_Create(t *testing.T) {
 
 func Test_Delete(t *testing.T) {
 	tests := []struct {
-		name     string
-		nickName string
-		mocks    userMocks
-		expCode  int
+		mocks   userMocks
+		name    string
+		userID  string
+		expCode int
 	}{
 		{
 			name: "nick name isnt present",
@@ -223,21 +224,21 @@ func Test_Delete(t *testing.T) {
 			expCode: http.StatusBadRequest,
 		},
 		{
-			name:     "nick name not found",
-			nickName: "abc",
+			name:   "nick name not found",
+			userID: "abc",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("Delete", mock.Anything, "abc").Return(errors.New("nick name not found"))
+					f.userService.Mock.On("Delete", mock.Anything, "abc").Return("", errors.New("nick name not found"))
 				},
 			},
 			expCode: http.StatusInternalServerError,
 		},
 		{
-			name:     "full flow",
-			nickName: "abc",
+			name:   "full flow",
+			userID: "abc",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("Delete", mock.Anything, "abc").Return(nil)
+					f.userService.Mock.On("Delete", mock.Anything, "abc").Return("test", nil)
 				},
 			},
 			expCode: http.StatusOK,
@@ -253,8 +254,8 @@ func Test_Delete(t *testing.T) {
 			_, engine := gin.CreateTestContext(httptest.NewRecorder())
 			url := "/users"
 			engine.DELETE(url, func(ctx *gin.Context) {
-				if tc.nickName != "" {
-					ctx.AddParam("code", tc.nickName)
+				if tc.userID != "" {
+					ctx.AddParam("code", tc.userID)
 				}
 				handler.Delete(ctx)
 			})

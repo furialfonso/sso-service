@@ -31,17 +31,27 @@ func (_m *IUserService) Create(ctx context.Context, userRequest request.UserRequ
 }
 
 // Delete provides a mock function with given fields: ctx, nickName
-func (_m *IUserService) Delete(ctx context.Context, nickName string) error {
+func (_m *IUserService) Delete(ctx context.Context, nickName string) (string, error) {
 	ret := _m.Called(ctx, nickName)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return rf(ctx, nickName)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
 		r0 = rf(ctx, nickName)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, nickName)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetAll provides a mock function with given fields: ctx

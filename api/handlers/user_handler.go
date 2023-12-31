@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"fmt"
+	"net/http"
+
 	"cow_sso/api/dto/request"
 	"cow_sso/api/dto/response"
 	"cow_sso/pkg/services"
-	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -72,15 +73,14 @@ func (uh *userHandler) Create(c *gin.Context) {
 		return
 	}
 	err := uh.userService.Create(ctx, userRequest)
-	var user string = *userRequest.NickName
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ApiErrors{
 			Code:    http.StatusInternalServerError,
-			Message: fmt.Sprintf("error creating user %s, err: %s", user, err.Error()),
+			Message: fmt.Sprintf("error creating user %s, err: %s", userRequest.NickName, err.Error()),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, fmt.Sprintf("user %s created", user))
+	c.JSON(http.StatusOK, fmt.Sprintf("user %s created", userRequest.NickName))
 }
 
 func (uh *userHandler) Delete(c *gin.Context) {

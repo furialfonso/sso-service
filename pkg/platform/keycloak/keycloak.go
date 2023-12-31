@@ -2,19 +2,20 @@ package keycloak
 
 import (
 	"context"
+
 	"cow_sso/pkg/config"
 
 	"github.com/Nerzal/gocloak/v13"
 )
 
 type IKeycloakService interface {
-	CreateToken(ctx context.Context) string
+	CreateToken(ctx context.Context) (string, error)
 	GetUserByID(ctx context.Context, token string, userID string) (*gocloak.User, error)
 	GetAllUsers(ctx context.Context, token string) ([]*gocloak.User, error)
 	GetUserByNickName(ctx context.Context, token string, nickName string) ([]*gocloak.User, error)
 	GetRoleByID(ctx context.Context, token string, roleID string) (*gocloak.Role, error)
 	CreateUser(ctx context.Context, token string, role *gocloak.Role, user gocloak.User) (string, error)
-	DeleteUserByID(ctx context.Context, token string, nickName string) error
+	DeleteUserByID(ctx context.Context, token string, userID string) error
 }
 
 type keycloakService struct {
@@ -33,15 +34,15 @@ func NewKeycloakService() IKeycloakService {
 	}
 }
 
-func (k *keycloakService) CreateToken(ctx context.Context) string {
+func (k *keycloakService) CreateToken(ctx context.Context) (string, error) {
 	realm := config.Get().UString("keycloak.realm-admin")
 	user := config.Get().UString("keycloak.user")
 	password := config.Get().UString("keycloak.pass")
 	token, err := k.host.LoginAdmin(ctx, user, password, realm)
 	if err != nil {
-		panic("Something wrong with the credentials or url")
+		return "", err
 	}
-	return token.AccessToken
+	return token.AccessToken, nil
 }
 
 func (k *keycloakService) GetUserByID(ctx context.Context, token string, userID string) (*gocloak.User, error) {
