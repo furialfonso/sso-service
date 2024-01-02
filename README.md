@@ -1,1 +1,1 @@
-# cow_sso_1s
+# cow_sso

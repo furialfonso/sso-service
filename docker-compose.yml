@@ -9,8 +9,6 @@ services:
       POSTGRES_DB: ${POSTGRESQL_DB}
       POSTGRES_USER: ${POSTGRESQL_USER}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
-    networks:
-      - local-keycloak
     ports:
       - ${POSTGRESQL_PORT}:5432
     volumes:
@@ -46,14 +44,12 @@ services:
           "CMD",
           "curl",
           "-f",
-          "http://localhost:${DEFAULT_PORT}/auth"
+          "http://keycloak:${DEFAULT_PORT}/auth"
         ]
       interval: 30s
       timeout: 10s
       retries: 3
     restart: always
-    networks:
-      - local-keycloak
   api:
     depends_on:
       keycloak:
@@ -73,11 +69,5 @@ services:
     ports:
       - ${APP_PORT}:${DEFAULT_PORT}
     restart: always
-    networks:
-      - local-keycloak
-networks:
-  local-keycloak:
 volumes:
   postgres-data:
-
-
