@@ -45,6 +45,7 @@ func (us *userService) GetAll(ctx context.Context) ([]response.UserResponse, err
 	}
 	for _, user := range users {
 		userResponse = append(userResponse, response.UserResponse{
+			ID:       *user.ID,
 			Name:     *user.FirstName,
 			LastName: *user.LastName,
 			Email:    *user.Email,

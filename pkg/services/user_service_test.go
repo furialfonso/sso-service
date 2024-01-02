@@ -53,12 +53,14 @@ func Test_GetAll(t *testing.T) {
 			mocks: userMocks{
 				userService: func(f *mockUserService) {
 					f.keycloakService.Mock.On("CreateToken", mock.Anything).Return("ABC", nil)
+					id := "abcde8"
 					firstName := "diego"
 					lastName := "fernandez"
 					email := "diego@gmail.com"
 					userName := "diegof"
 					f.keycloakService.Mock.On("GetAllUsers", mock.Anything, "ABC").Return([]*gocloak.User{
 						{
+							ID:        &id,
 							FirstName: &firstName,
 							LastName:  &lastName,
 							Email:     &email,
@@ -69,6 +71,7 @@ func Test_GetAll(t *testing.T) {
 			},
 			outPut: []response.UserResponse{
 				{
+					ID:       "abcde8",
 					Name:     "diego",
 					LastName: "fernandez",
 					Email:    "diego@gmail.com",
