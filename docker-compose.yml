@@ -54,8 +54,8 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
-    container_name: ${APPLICATION_NAME}_api
-    image: ${REPOSITORY}/${APPLICATION_NAME}_api
+    container_name: ${APPLICATION_NAME}_${SCOPE}_api
+    image: ${REPOSITORY}/${APPLICATION_NAME}_api:${SCOPE}
     environment:
       CONFIG_DIR: /app
       SCOPE: ${SCOPE}

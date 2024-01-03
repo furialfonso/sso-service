@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -16,6 +17,7 @@ import (
 
 type mockUserService struct {
 	keycloakService *mocks.IKeycloakService
+	restfulService  *mocks.IRestfulService
 }
 
 type userMocks struct {
@@ -84,9 +86,10 @@ func Test_GetAll(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockUserService{
 				keycloakService: &mocks.IKeycloakService{},
+				restfulService:  &mocks.IRestfulService{},
 			}
 			tt.mocks.userService(m)
-			service := NewUserService(m.keycloakService)
+			service := NewUserService(m.keycloakService, m.restfulService)
 			users, err := service.GetAll(context.Background())
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)
@@ -157,9 +160,10 @@ func Test_GetByNickName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockUserService{
 				keycloakService: &mocks.IKeycloakService{},
+				restfulService:  &mocks.IRestfulService{},
 			}
 			tt.mocks.userService(m)
-			service := NewUserService(m.keycloakService)
+			service := NewUserService(m.keycloakService, m.restfulService)
 			users, err := service.GetByNickName(context.Background(), tt.nickName)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)
@@ -266,9 +270,10 @@ func Test_Create(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockUserService{
 				keycloakService: &mocks.IKeycloakService{},
+				restfulService:  &mocks.IRestfulService{},
 			}
 			tt.mocks.userService(m)
-			service := NewUserService(m.keycloakService)
+			service := NewUserService(m.keycloakService, m.restfulService)
 			err := service.Create(context.Background(), tt.userRequest)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)
@@ -313,6 +318,53 @@ func Test_Delete(t *testing.T) {
 			expErr: errors.New("some error"),
 		},
 		{
+			name:   "error getting teams by user",
+			userID: "1234",
+			mocks: userMocks{
+				func(f *mockUserService) {
+					f.keycloakService.Mock.On("CreateToken", mock.Anything).Return("ABC", nil)
+					x := "diego"
+					id := "1234"
+					user := gocloak.User{
+						ID:       &id,
+						Username: &x,
+					}
+					f.keycloakService.Mock.On("GetUserByID", mock.Anything, "ABC", "1234").Return(&user, nil)
+					teams := TeamsByUserResponse{}
+					b, _ := json.Marshal(teams)
+					f.restfulService.Mock.On("Get", mock.Anything, "http://localhost:8080/teams/users/1234", "5s").Return(b, errors.New("some error"))
+				},
+			},
+			expErr: errors.New("some error"),
+		},
+		{
+			name:   "error user with teams",
+			userID: "1234",
+			mocks: userMocks{
+				func(f *mockUserService) {
+					f.keycloakService.Mock.On("CreateToken", mock.Anything).Return("ABC", nil)
+					x := "diego"
+					id := "1234"
+					user := gocloak.User{
+						ID:       &id,
+						Username: &x,
+					}
+					f.keycloakService.Mock.On("GetUserByID", mock.Anything, "ABC", "1234").Return(&user, nil)
+					teams := TeamsByUserResponse{
+						Teams: []TeamResponse{
+							{
+								Code: "test",
+								Debt: 0,
+							},
+						},
+					}
+					b, _ := json.Marshal(teams)
+					f.restfulService.Mock.On("Get", mock.Anything, "http://localhost:8080/teams/users/1234", "5s").Return(b, nil)
+				},
+			},
+			expErr: errors.New("user 1234 has teams"),
+		},
+		{
 			name:   "error DeleteUserByID",
 			userID: "1234",
 			mocks: userMocks{
@@ -325,6 +377,9 @@ func Test_Delete(t *testing.T) {
 						Username: &x,
 					}
 					f.keycloakService.Mock.On("GetUserByID", mock.Anything, "ABC", "1234").Return(&user, nil)
+					teams := TeamsByUserResponse{}
+					b, _ := json.Marshal(teams)
+					f.restfulService.Mock.On("Get", mock.Anything, "http://localhost:8080/teams/users/1234", "5s").Return(b, nil)
 					f.keycloakService.Mock.On("DeleteUserByID", mock.Anything, "ABC", "1234").Return(errors.New("some error"))
 				},
 			},
@@ -343,6 +398,9 @@ func Test_Delete(t *testing.T) {
 						Username: &x,
 					}
 					f.keycloakService.Mock.On("GetUserByID", mock.Anything, "ABC", "1234").Return(&user, nil)
+					teams := TeamsByUserResponse{}
+					b, _ := json.Marshal(teams)
+					f.restfulService.Mock.On("Get", mock.Anything, "http://localhost:8080/teams/users/1234", "5s").Return(b, nil)
 					f.keycloakService.Mock.On("DeleteUserByID", mock.Anything, "ABC", "1234").Return(nil)
 				},
 			},
@@ -353,9 +411,10 @@ func Test_Delete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockUserService{
 				keycloakService: &mocks.IKeycloakService{},
+				restfulService:  &mocks.IRestfulService{},
 			}
 			tt.mocks.userService(m)
-			service := NewUserService(m.keycloakService)
+			service := NewUserService(m.keycloakService, m.restfulService)
 			users, err := service.Delete(context.Background(), tt.userID)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)

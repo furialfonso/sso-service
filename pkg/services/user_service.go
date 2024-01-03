@@ -2,18 +2,22 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
 	"cow_sso/api/dto/request"
 	"cow_sso/api/dto/response"
+	"cow_sso/pkg/config"
 	"cow_sso/pkg/platform/keycloak"
+	"cow_sso/pkg/platform/restful"
 
 	"github.com/Nerzal/gocloak/v13"
 )
 
 const (
-	_roleName = "user"
+	_roleName       = "user"
+	_getTeamsByUser = "/teams/users"
 )
 
 type IUserService interface {
@@ -25,11 +29,14 @@ type IUserService interface {
 
 type userService struct {
 	keycloakService keycloak.IKeycloakService
+	restfulService  restful.IRestfulService
 }
 
-func NewUserService(keycloakService keycloak.IKeycloakService) IUserService {
+func NewUserService(keycloakService keycloak.IKeycloakService,
+	restfulService restful.IRestfulService) IUserService {
 	return &userService{
 		keycloakService: keycloakService,
+		restfulService:  restfulService,
 	}
 }
 
@@ -108,6 +115,23 @@ func (us *userService) Delete(ctx context.Context, userID string) (string, error
 	user, err := us.keycloakService.GetUserByID(ctx, token, userID)
 	if err != nil {
 		return userName, err
+	}
+
+	url := fmt.Sprintf("%s%s/%s", config.Get().UString("cow-api.url"), _getTeamsByUser, userID)
+	timeOut := config.Get().UString("cow-api.timeout")
+	resp, err := us.restfulService.Get(ctx, url, timeOut)
+	if err != nil {
+		return userName, err
+	}
+
+	var teams TeamsByUserResponse
+	err = json.Unmarshal(resp, &teams)
+	if err != nil {
+		return userName, err
+	}
+
+	if teams.Teams != nil {
+		return userName, errors.New(fmt.Sprintf("user %s has teams", userID))
 	}
 
 	err = us.keycloakService.DeleteUserByID(ctx, token, userID)

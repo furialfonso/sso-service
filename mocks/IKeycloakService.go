@@ -63,13 +63,13 @@ func (_m *IKeycloakService) CreateUser(ctx context.Context, token string, role *
 	return r0, r1
 }
 
-// DeleteUserByID provides a mock function with given fields: ctx, token, nickName
-func (_m *IKeycloakService) DeleteUserByID(ctx context.Context, token string, nickName string) error {
-	ret := _m.Called(ctx, token, nickName)
+// DeleteUserByID provides a mock function with given fields: ctx, token, userID
+func (_m *IKeycloakService) DeleteUserByID(ctx context.Context, token string, userID string) error {
+	ret := _m.Called(ctx, token, userID)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
-		r0 = rf(ctx, token, nickName)
+		r0 = rf(ctx, token, userID)
 	} else {
 		r0 = ret.Error(0)
 	}

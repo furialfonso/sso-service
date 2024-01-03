@@ -4,6 +4,7 @@ import (
 	"cow_sso/api/handlers"
 	"cow_sso/api/server"
 	"cow_sso/pkg/platform/keycloak"
+	"cow_sso/pkg/platform/restful"
 	"cow_sso/pkg/services"
 
 	"go.uber.org/dig"
@@ -19,6 +20,7 @@ func BuildDependencies() *dig.Container {
 	_ = Container.Provide(handlers.NewUserHandler)
 	_ = Container.Provide(services.NewUserService)
 	_ = Container.Provide(keycloak.NewKeycloakService)
+	_ = Container.Provide(restful.NewRestfulService)
 
 	return Container
 }

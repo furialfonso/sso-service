@@ -6,3 +6,6 @@ keycloak:
   pass: Admin123
   realm: cow
   client: cow-test
+cow-api:
+  url: http://localhost:8080
+  timeout: 5s
