@@ -7,5 +7,5 @@ keycloak:
   realm: cow
   client: cow-test
 cow-api:
-  url: http://localhost:8080
+  url: http://localhost:7070
   timeout: 5s

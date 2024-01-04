@@ -335,7 +335,7 @@ func Test_Delete(t *testing.T) {
 					f.keycloakService.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
 					teams := TeamsByUserResponse{}
 					b, _ := json.Marshal(teams)
-					f.restfulService.Mock.On("Get", mock.Anything, "http://localhost:8080/teams/user/1234", "5s").Return(b, errors.New("some error"))
+					f.restfulService.Mock.On("Get", mock.Anything, mock.Anything, "5s").Return(b, errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -362,7 +362,7 @@ func Test_Delete(t *testing.T) {
 						},
 					}
 					b, _ := json.Marshal(teams)
-					f.restfulService.Mock.On("Get", mock.Anything, "http://localhost:8080/teams/user/1234", "5s").Return(b, nil)
+					f.restfulService.Mock.On("Get", mock.Anything, mock.Anything, "5s").Return(b, nil)
 				},
 			},
 			expErr: errors.New("user 1234 has teams"),
@@ -382,7 +382,7 @@ func Test_Delete(t *testing.T) {
 					f.keycloakService.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
 					teams := TeamsByUserResponse{}
 					b, _ := json.Marshal(teams)
-					f.restfulService.Mock.On("Get", mock.Anything, "http://localhost:8080/teams/user/1234", "5s").Return(b, nil)
+					f.restfulService.Mock.On("Get", mock.Anything, mock.Anything, "5s").Return(b, nil)
 					f.keycloakService.Mock.On("DeleteUserByID", mock.Anything, "ABC", "1234").Return(errors.New("some error"))
 				},
 			},
@@ -403,7 +403,7 @@ func Test_Delete(t *testing.T) {
 					f.keycloakService.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
 					teams := TeamsByUserResponse{}
 					b, _ := json.Marshal(teams)
-					f.restfulService.Mock.On("Get", mock.Anything, "http://localhost:8080/teams/user/1234", "5s").Return(b, nil)
+					f.restfulService.Mock.On("Get", mock.Anything, mock.Anything, "5s").Return(b, nil)
 					f.keycloakService.Mock.On("DeleteUserByID", mock.Anything, "ABC", "1234").Return(nil)
 				},
 			},
