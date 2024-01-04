@@ -2,6 +2,8 @@ package keycloak
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"cow_sso/pkg/config"
 
@@ -12,7 +14,7 @@ type IKeycloakService interface {
 	CreateToken(ctx context.Context) (string, error)
 	GetUserByID(ctx context.Context, token string, userID string) (*gocloak.User, error)
 	GetAllUsers(ctx context.Context, token string) ([]*gocloak.User, error)
-	GetUserByNickName(ctx context.Context, token string, nickName string) ([]*gocloak.User, error)
+	GetUserByNickName(ctx context.Context, token string, nickName string) (*gocloak.User, error)
 	GetRoleByID(ctx context.Context, token string, roleID string) (*gocloak.Role, error)
 	CreateUser(ctx context.Context, token string, role *gocloak.Role, user gocloak.User) (string, error)
 	DeleteUserByID(ctx context.Context, token string, userID string) error
@@ -53,7 +55,7 @@ func (k *keycloakService) GetAllUsers(ctx context.Context, token string) ([]*goc
 	return k.host.GetUsers(ctx, token, k.realm, gocloak.GetUsersParams{})
 }
 
-func (k *keycloakService) GetUserByNickName(ctx context.Context, token string, nickName string) ([]*gocloak.User, error) {
+func (k *keycloakService) GetUserByNickName(ctx context.Context, token string, nickName string) (*gocloak.User, error) {
 	users, err := k.host.GetUsers(ctx, token, k.realm, gocloak.GetUsersParams{
 		Username: &nickName,
 	})
@@ -61,7 +63,11 @@ func (k *keycloakService) GetUserByNickName(ctx context.Context, token string, n
 		return nil, err
 	}
 
-	return users, nil
+	if len(users) == 0 {
+		return nil, errors.New(fmt.Sprintf("user %s doesn't exist", nickName))
+	}
+
+	return users[0], nil
 }
 
 func (k *keycloakService) GetRoleByID(ctx context.Context, token string, roleName string) (*gocloak.Role, error) {

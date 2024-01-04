@@ -12,7 +12,7 @@
       "program": "${workspaceRoot}/api/main.go",
       "env": {
         "SCOPE": "local",
-        "PORT": "8080",
+        "PORT": "8081",
         "CONFIG_DIR": "${workspaceRoot}/pkg/config",
         "GIN_MODE": "release",
       }

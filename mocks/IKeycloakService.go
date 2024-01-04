@@ -156,19 +156,19 @@ func (_m *IKeycloakService) GetUserByID(ctx context.Context, token string, userI
 }
 
 // GetUserByNickName provides a mock function with given fields: ctx, token, nickName
-func (_m *IKeycloakService) GetUserByNickName(ctx context.Context, token string, nickName string) ([]*gocloak.User, error) {
+func (_m *IKeycloakService) GetUserByNickName(ctx context.Context, token string, nickName string) (*gocloak.User, error) {
 	ret := _m.Called(ctx, token, nickName)
 
-	var r0 []*gocloak.User
+	var r0 *gocloak.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) ([]*gocloak.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*gocloak.User, error)); ok {
 		return rf(ctx, token, nickName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) []*gocloak.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *gocloak.User); ok {
 		r0 = rf(ctx, token, nickName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*gocloak.User)
+			r0 = ret.Get(0).(*gocloak.User)
 		}
 	}
 

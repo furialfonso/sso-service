@@ -85,7 +85,7 @@ func (uh *userHandler) Create(c *gin.Context) {
 
 func (uh *userHandler) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID, exists := c.Params.Get("code")
+	nickName, exists := c.Params.Get("code")
 	if !exists {
 		c.JSON(http.StatusBadRequest, response.ApiErrors{
 			Code:    http.StatusBadRequest,
@@ -93,11 +93,11 @@ func (uh *userHandler) Delete(c *gin.Context) {
 		})
 		return
 	}
-	userName, err := uh.userService.Delete(ctx, userID)
+	userName, err := uh.userService.Delete(ctx, nickName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ApiErrors{
 			Code:    http.StatusInternalServerError,
-			Message: fmt.Sprintf("error deleting user: %s, err: %s", userID, err.Error()),
+			Message: fmt.Sprintf("error deleting user: %s, err: %s", nickName, err.Error()),
 		})
 		return
 	}

@@ -17,7 +17,7 @@ import (
 
 const (
 	_roleName       = "user"
-	_getTeamsByUser = "/teams/users"
+	_getTeamsByUser = "/teams/user"
 )
 
 type IUserService interface {
@@ -33,7 +33,8 @@ type userService struct {
 }
 
 func NewUserService(keycloakService keycloak.IKeycloakService,
-	restfulService restful.IRestfulService) IUserService {
+	restfulService restful.IRestfulService,
+) IUserService {
 	return &userService{
 		keycloakService: keycloakService,
 		restfulService:  restfulService,
@@ -68,23 +69,18 @@ func (us *userService) GetByNickName(ctx context.Context, nickName string) (resp
 	if err != nil {
 		return userResponse, err
 	}
-	users, err := us.keycloakService.GetUserByNickName(ctx, token, nickName)
+	user, err := us.keycloakService.GetUserByNickName(ctx, token, nickName)
 	if err != nil {
 		return userResponse, err
 	}
-	if len(users) == 0 {
-		return userResponse, errors.New(fmt.Sprintf("user %s doesn't exist", nickName))
-	}
-	for _, user := range users {
-		userResponse = response.UserResponse{
-			Name:     *user.FirstName,
-			LastName: *user.LastName,
-			Email:    *user.Email,
-			NickName: *user.Username,
-		}
-		break
-	}
-	return userResponse, nil
+
+	return response.UserResponse{
+		ID:       *user.ID,
+		Name:     *user.FirstName,
+		LastName: *user.LastName,
+		Email:    *user.Email,
+		NickName: *user.Username,
+	}, nil
 }
 
 func (us *userService) Create(ctx context.Context, userRequest request.UserRequest) error {
@@ -106,18 +102,18 @@ func (us *userService) Create(ctx context.Context, userRequest request.UserReque
 	return err
 }
 
-func (us *userService) Delete(ctx context.Context, userID string) (string, error) {
+func (us *userService) Delete(ctx context.Context, nickName string) (string, error) {
 	var userName string
 	token, err := us.keycloakService.CreateToken(ctx)
 	if err != nil {
 		return userName, err
 	}
-	user, err := us.keycloakService.GetUserByID(ctx, token, userID)
+	user, err := us.keycloakService.GetUserByNickName(ctx, token, nickName)
 	if err != nil {
 		return userName, err
 	}
 
-	url := fmt.Sprintf("%s%s/%s", config.Get().UString("cow-api.url"), _getTeamsByUser, userID)
+	url := fmt.Sprintf("%s%s/%s", config.Get().UString("cow-api.url"), _getTeamsByUser, *user.ID)
 	timeOut := config.Get().UString("cow-api.timeout")
 	resp, err := us.restfulService.Get(ctx, url, timeOut)
 	if err != nil {
@@ -131,10 +127,10 @@ func (us *userService) Delete(ctx context.Context, userID string) (string, error
 	}
 
 	if teams.Teams != nil {
-		return userName, errors.New(fmt.Sprintf("user %s has teams", userID))
+		return userName, errors.New(fmt.Sprintf("user %s has teams", nickName))
 	}
 
-	err = us.keycloakService.DeleteUserByID(ctx, token, userID)
+	err = us.keycloakService.DeleteUserByID(ctx, token, *user.ID)
 	if err != nil {
 		return userName, err
 	}
