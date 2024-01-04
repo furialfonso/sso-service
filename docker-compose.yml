@@ -22,6 +22,8 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
+    networks:
+      - cownetwork
   keycloak:
     depends_on:
       postgres:
@@ -50,6 +52,8 @@ services:
       timeout: 10s
       retries: 3
     restart: always
+    networks:
+      - cownetwork
   api:
     depends_on:
       keycloak:
@@ -69,5 +73,12 @@ services:
     ports:
       - ${APP_PORT}:${DEFAULT_PORT}
     restart: always
+    networks:
+      - cownetwork
 volumes:
   postgres-data:
+
+
+networks:
+  cownetwork:
+    external: true
