@@ -123,7 +123,7 @@ func (us *userService) Delete(ctx context.Context, nickName string) (string, err
 	var teams TeamsByUserResponse
 	err = json.Unmarshal(resp, &teams)
 	if err != nil {
-		return userName, err
+		return userName, errors.New("error getting teams by user")
 	}
 
 	if teams.Teams != nil {

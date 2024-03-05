@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	"cow_sso/pkg/config"
 
@@ -11,6 +12,8 @@ import (
 )
 
 type IKeycloakService interface {
+	Login(ctx context.Context, user string, password string) (*gocloak.JWT, error)
+	Logout(ctx context.Context, refreshToken string) error
 	CreateToken(ctx context.Context) (string, error)
 	GetUserByID(ctx context.Context, token string, userID string) (*gocloak.User, error)
 	GetAllUsers(ctx context.Context, token string) ([]*gocloak.User, error)
@@ -24,16 +27,35 @@ type keycloakService struct {
 	host   *gocloak.GoCloak
 	realm  string
 	client string
+	secret string
 }
 
 func NewKeycloakService() IKeycloakService {
 	host := gocloak.NewClient(config.Get().UString("keycloak.host"))
 	client := config.Get().UString("keycloak.client")
+	secret := os.Getenv("KEYCLOAK_SECRET")
 	return &keycloakService{
 		host:   host,
 		realm:  config.Get().UString("keycloak.realm"),
 		client: client,
+		secret: secret,
 	}
+}
+
+func (k *keycloakService) Login(ctx context.Context, user string, password string) (*gocloak.JWT, error) {
+	token, err := k.host.Login(ctx, k.client, k.secret, k.realm, user, password)
+	if err != nil {
+		return nil, errors.New("user or password incorrect")
+	}
+	return token, nil
+}
+
+func (k *keycloakService) Logout(ctx context.Context, refreshToken string) error {
+	err := k.host.Logout(ctx, k.client, k.secret, k.realm, refreshToken)
+	if err != nil {
+		return errors.New("Invalid refresh token")
+	}
+	return nil
 }
 
 func (k *keycloakService) CreateToken(ctx context.Context) (string, error) {

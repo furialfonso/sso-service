@@ -4,8 +4,8 @@ keycloak:
   realm-admin: master
   user: furialfonso
   pass: Admin123
-  realm: cow
-  client: cow-test
+  realm: Test
+  client: cow
 cow-api:
   url: http://localhost:7070
   timeout: 5s

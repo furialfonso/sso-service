@@ -8,21 +8,28 @@ import (
 
 type Router struct {
 	pingHandler handlers.IPingHandler
+	authHandler handlers.IAuthHandler
 	userHandler handlers.IUserHandler
 }
 
 func NewRouter(pingHandler handlers.IPingHandler,
+	authHandler handlers.IAuthHandler,
 	userHandler handlers.IUserHandler,
 ) *Router {
 	return &Router{
 		pingHandler,
+		authHandler,
 		userHandler,
 	}
 }
 
 func (r Router) Resource(gin *gin.Engine) {
 	gin.GET("/ping", r.pingHandler.Ping)
-
+	auth := gin.Group("/auth")
+	{
+		auth.POST("/login", r.authHandler.Login)
+		auth.POST("/logout", r.authHandler.Logout)
+	}
 	user := gin.Group("/users")
 	{
 		user.GET("", r.userHandler.GetAll)

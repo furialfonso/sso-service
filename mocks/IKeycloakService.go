@@ -181,6 +181,46 @@ func (_m *IKeycloakService) GetUserByNickName(ctx context.Context, token string,
 	return r0, r1
 }
 
+// Login provides a mock function with given fields: ctx, user, password
+func (_m *IKeycloakService) Login(ctx context.Context, user string, password string) (*gocloak.JWT, error) {
+	ret := _m.Called(ctx, user, password)
+
+	var r0 *gocloak.JWT
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*gocloak.JWT, error)); ok {
+		return rf(ctx, user, password)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *gocloak.JWT); ok {
+		r0 = rf(ctx, user, password)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*gocloak.JWT)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, user, password)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Logout provides a mock function with given fields: ctx, refreshToken
+func (_m *IKeycloakService) Logout(ctx context.Context, refreshToken string) error {
+	ret := _m.Called(ctx, refreshToken)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, refreshToken)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewIKeycloakService creates a new instance of IKeycloakService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewIKeycloakService(t interface {

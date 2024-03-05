@@ -341,6 +341,25 @@ func Test_Delete(t *testing.T) {
 			expErr: errors.New("some error"),
 		},
 		{
+			name:     "error user with teams unmarshal",
+			nickName: "1234",
+			mocks: userMocks{
+				func(f *mockUserService) {
+					f.keycloakService.Mock.On("CreateToken", mock.Anything).Return("ABC", nil)
+					x := "diego"
+					id := "1234"
+					user := gocloak.User{
+						ID:       &id,
+						Username: &x,
+					}
+					f.keycloakService.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
+					b, _ := json.Marshal("x")
+					f.restfulService.Mock.On("Get", mock.Anything, mock.Anything, "5s").Return(b, nil)
+				},
+			},
+			expErr: errors.New("error getting teams by user"),
+		},
+		{
 			name:     "error user with teams",
 			nickName: "1234",
 			mocks: userMocks{
