@@ -65,6 +65,7 @@ services:
       CONFIG_DIR: /app
       SCOPE: ${SCOPE}
       PORT: ${DEFAULT_PORT}
+      KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
       GIN_MODE: release
     build:
       context: .

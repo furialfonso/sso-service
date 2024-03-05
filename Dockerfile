@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.20.6-alpine3.18 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.21.6-alpine3.18 AS builder
 ARG SCOPE
 RUN apk add --no-cache git upx
 WORKDIR /app
