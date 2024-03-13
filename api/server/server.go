@@ -1,7 +1,17 @@
 package server
 
-import "github.com/gin-gonic/gin"
+import (
+	"cow_sso/middleware"
 
-func New() *gin.Engine {
-	return gin.Default()
+	"github.com/gin-gonic/gin"
+)
+
+type server struct {
+	middleware middleware.ICorsConfig
+}
+
+func New(middleware middleware.ICorsConfig) *gin.Engine {
+	r := gin.Default()
+	r.Use(middleware.CorsConfig())
+	return r
 }
