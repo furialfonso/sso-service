@@ -6,11 +6,11 @@ services:
     image: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_DB: ${POSTGRESQL_NAME}
       POSTGRES_USER: ${POSTGRESQL_USER}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
     ports:
-      - ${POSTGRESQL_PORT}:5432
+      - ${POSTGRESQL_PORT}:${DEFAULT_POSTGRES_PORT}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -29,25 +29,27 @@ services:
       postgres:
         condition: service_healthy
     container_name: keycloak
-    image: jboss/keycloak
+    image: bitnami/keycloak
     ports:
-      - ${KEYCLOAK_PORT}:${DEFAULT_PORT}
+      - ${KEYCLOAK_PORT}:${DEFAULT_KEYCLOAK_PORT}
     environment:
-      DB_VENDOR: postgres
-      DB_ADDR: postgres
-      DB_DATABASE: ${POSTGRESQL_DB}
-      DB_USER: ${POSTGRESQL_USER}
-      DB_PASSWORD: ${POSTGRESQL_PASS}
-      KEYCLOAK_USER: ${KEYCLOAK_USER}
-      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
-      KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
+      KEYCLOAK_ADMIN_USER: ${KEYCLOAK_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
+
+      KEYCLOAK_DATABASE_HOST: ${POSTGRESQL_HOST}
+      KEYCLOAK_DATABASE_PORT: ${DEFAULT_POSTGRES_PORT}
+      KEYCLOAK_DATABASE_NAME: ${POSTGRESQL_NAME}
+      KEYCLOAK_DATABASE_USER: ${POSTGRESQL_USER}
+      KEYCLOAK_DATABASE_PASSWORD: ${POSTGRESQL_PASS}
+      KEYCLOAK_ENABLE_STATISTICS: true
+      KEYCLOAK_ENABLE_HEALTH_ENDPOINTS: true
     healthcheck:
       test:
         [
           "CMD",
           "curl",
           "-f",
-          "http://keycloak:${DEFAULT_PORT}/auth"
+          "http://keycloak:${DEFAULT_KEYCLOAK_PORT}/health/ready"
         ]
       interval: 30s
       timeout: 10s
@@ -64,7 +66,7 @@ services:
     environment:
       CONFIG_DIR: /app
       SCOPE: ${SCOPE}
-      PORT: ${DEFAULT_PORT}
+      PORT: ${DEFAULT_API_PORT}
       KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
       GIN_MODE: release
     build:
@@ -73,7 +75,7 @@ services:
         - SCOPE=${SCOPE}
       dockerfile: ./Dockerfile
     ports:
-      - ${APP_PORT}:${DEFAULT_PORT}
+      - ${API_PORT}:${DEFAULT_API_PORT}
     restart: always
     networks:
       - cownetwork

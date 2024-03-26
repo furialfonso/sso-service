@@ -15,7 +15,7 @@
         "PORT": "8081",
         "CONFIG_DIR": "${workspaceRoot}/pkg/config",
         "GIN_MODE": "release",
-        "KEYCLOAK_SECRET": "RywPlK2kFz1d2nVkkBBUXfL68G9OV9iK"
+        "KEYCLOAK_SECRET": "5DMSyn3G6nEjNLwwy7gVijPK9mWUfjak"
       }
     }
   ]

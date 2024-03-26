@@ -87,4 +87,16 @@ It is a 3-tier based architecture with dependency injection.
   ```
 
 **Utils**
-- https://www.youtube.com/watch?v=Ms5RKs8TNU4&t=1504s
+- docker-golang
+```
+https://www.youtube.com/watch?v=Ms5RKs8TNU4&t=1504s
+```
+- docker-compose keycloak
+```
+https://medium.com/@kaloyanmanev/bitnami-keycloack-inside-docker-compose-import-realm-on-startup-3627a7da7f39
+```
+- Keycloak config
+
+```
+https://www.youtube.com/watch?v=zR3igUft1KA&t=2044s
+```
