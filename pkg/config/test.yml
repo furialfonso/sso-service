@@ -1,7 +1,7 @@
 name: TEST
 keycloak:
   host: http://keycloak:8080
-  realm-admin: admin-cli
+  realm-admin: master
   user: furialfonso
   pass: Admin123
   realm: Test
