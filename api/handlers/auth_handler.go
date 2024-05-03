@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"net/http"
+	"strings"
+
 	"cow_sso/api/dto/request"
 	"cow_sso/api/dto/response"
 	"cow_sso/pkg/auth"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,6 +14,7 @@ import (
 type IAuthHandler interface {
 	Login(c *gin.Context)
 	Logout(c *gin.Context)
+	IsValidToken(c *gin.Context)
 }
 
 type authHandler struct {
@@ -64,4 +67,39 @@ func (a *authHandler) Logout(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, "logout")
+}
+
+func (a *authHandler) IsValidToken(c *gin.Context) {
+	ctx := c.Request.Context()
+	auth := c.GetHeader("Authorization")
+	if auth == "" {
+		c.JSON(http.StatusBadRequest, response.ApiErrors{
+			Code:    http.StatusBadRequest,
+			Message: "token is required",
+		})
+		return
+	}
+	token := strings.Split(auth, " ")
+	if len(token) != 2 || token[0] != "Bearer" {
+		c.JSON(http.StatusBadRequest, response.ApiErrors{
+			Code:    http.StatusBadRequest,
+			Message: "invalid token format",
+		})
+		return
+	}
+
+	isValid, err := a.authService.IsValidToken(ctx, token[1])
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ApiErrors{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	if isValid {
+		c.JSON(http.StatusOK, true)
+	} else {
+		c.JSON(http.StatusUnauthorized, false)
+	}
 }

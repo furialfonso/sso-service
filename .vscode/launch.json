@@ -12,11 +12,27 @@
       "program": "${workspaceRoot}/api/main.go",
       "env": {
         "SCOPE": "local",
-        "PORT": "8081",
+        "PORT": "8080",
         "CONFIG_DIR": "${workspaceRoot}/pkg/config",
         "GIN_MODE": "release",
         "KEYCLOAK_SECRET": "5DMSyn3G6nEjNLwwy7gVijPK9mWUfjak"
       }
+    },
+    {
+      "name": "TestUnits",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceRoot}/api/handlers/auth_handler_test.go",
+      "env": {
+        "PORT": "8080",
+        "CONFIG_DIR": "${workspaceRoot}/pkg/config",
+        "GIN_MODE": "release",
+        "KEYCLOAK_SECRET": "5DMSyn3G6nEjNLwwy7gVijPK9mWUfjak"
+      },
+      "args": [
+        "Test_IsValidToken"
+      ],
     }
   ]
 }

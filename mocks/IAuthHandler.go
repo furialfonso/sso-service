@@ -13,6 +13,11 @@ type IAuthHandler struct {
 	mock.Mock
 }
 
+// IsValidToken provides a mock function with given fields: c
+func (_m *IAuthHandler) IsValidToken(c *gin.Context) {
+	_m.Called(c)
+}
+
 // Login provides a mock function with given fields: c
 func (_m *IAuthHandler) Login(c *gin.Context) {
 	_m.Called(c)

@@ -2,15 +2,16 @@ package handlers
 
 import (
 	"bytes"
-	"cow_sso/api/dto/request"
-	"cow_sso/api/dto/response"
-	"cow_sso/mocks"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"cow_sso/api/dto/request"
+	"cow_sso/api/dto/response"
+	"cow_sso/mocks"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -158,6 +159,82 @@ func Test_Logout(t *testing.T) {
 			res := httptest.NewRecorder()
 			b, _ := json.Marshal(tc.refreshTokenRequest)
 			req := httptest.NewRequest(http.MethodPost, url, io.NopCloser(bytes.NewBuffer(b)))
+			engine.ServeHTTP(res, req)
+			assert.Equal(t, tc.expCode, res.Code)
+		})
+	}
+}
+
+func Test_IsValidToken(t *testing.T) {
+	tests := []struct {
+		mocks       authMocks
+		name        string
+		accessToken string
+		expCode     int
+	}{
+		{
+			name: "token is required",
+			mocks: authMocks{
+				authHandler: func(f *mockAuthHandler) {},
+			},
+			expCode: http.StatusBadRequest,
+		},
+		{
+			name:        "error token format",
+			accessToken: "Bearertoken",
+			mocks: authMocks{
+				authHandler: func(f *mockAuthHandler) {},
+			},
+			expCode: http.StatusBadRequest,
+		},
+		{
+			name:        "error toekn",
+			accessToken: "Bearer token",
+			mocks: authMocks{
+				authHandler: func(f *mockAuthHandler) {
+					f.authService.On("IsValidToken", mock.Anything, "token").Return(false, errors.New("some error"))
+				},
+			},
+			expCode: http.StatusInternalServerError,
+		},
+		{
+			name:        "token invalid",
+			accessToken: "Bearer token",
+			mocks: authMocks{
+				authHandler: func(f *mockAuthHandler) {
+					f.authService.On("IsValidToken", mock.Anything, "token").Return(false, nil)
+				},
+			},
+			expCode: http.StatusUnauthorized,
+		},
+		{
+			name:        "success",
+			accessToken: "Bearer token",
+			mocks: authMocks{
+				authHandler: func(f *mockAuthHandler) {
+					f.authService.On("IsValidToken", mock.Anything, "token").Return(true, nil)
+				},
+			},
+			expCode: http.StatusOK,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			ms := &mockAuthHandler{
+				&mocks.IAuthService{},
+			}
+			tc.mocks.authHandler(ms)
+			handler := NewAuthHandler(ms.authService)
+			url := "/auth/valid-token"
+			_, engine := gin.CreateTestContext(httptest.NewRecorder())
+			engine.POST(url, func(ctx *gin.Context) {
+				handler.IsValidToken(ctx)
+			})
+			res := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodPost, url, nil)
+			if tc.accessToken != "" {
+				req.Header.Set("Authorization", tc.accessToken)
+			}
 			engine.ServeHTTP(res, req)
 			assert.Equal(t, tc.expCode, res.Code)
 		})

@@ -14,6 +14,7 @@ import (
 type IKeycloakService interface {
 	Login(ctx context.Context, user string, password string) (*gocloak.JWT, error)
 	Logout(ctx context.Context, refreshToken string) error
+	IsValidToken(ctx context.Context, accessToken string) (bool, error)
 	CreateToken(ctx context.Context) (string, error)
 	GetUserByID(ctx context.Context, token string, userID string) (*gocloak.User, error)
 	GetAllUsers(ctx context.Context, token string) ([]*gocloak.User, error)
@@ -56,6 +57,15 @@ func (k *keycloakService) Logout(ctx context.Context, refreshToken string) error
 		return errors.New("Invalid refresh token")
 	}
 	return nil
+}
+
+func (k *keycloakService) IsValidToken(ctx context.Context, accessToken string) (bool, error) {
+	ret, err := k.host.RetrospectToken(ctx, accessToken, k.client, k.secret, k.realm)
+	if err != nil {
+		return false, err
+	}
+
+	return *ret.Active, nil
 }
 
 func (k *keycloakService) CreateToken(ctx context.Context) (string, error) {

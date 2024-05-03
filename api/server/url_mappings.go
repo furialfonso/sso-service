@@ -29,6 +29,7 @@ func (r Router) Resource(gin *gin.Engine) {
 	{
 		auth.POST("/login", r.authHandler.Login)
 		auth.POST("/logout", r.authHandler.Logout)
+		auth.POST("/valid-token", r.authHandler.IsValidToken)
 	}
 	user := gin.Group("/users")
 	{

@@ -2,11 +2,12 @@ package auth
 
 import (
 	"context"
+	"errors"
+	"testing"
+
 	"cow_sso/api/dto/request"
 	"cow_sso/api/dto/response"
 	"cow_sso/mocks"
-	"errors"
-	"testing"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/stretchr/testify/assert"
@@ -126,6 +127,51 @@ func Test_Logout(t *testing.T) {
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)
 			}
+		})
+	}
+}
+
+func Test_IsValidToken(t *testing.T) {
+	tests := []struct {
+		name        string
+		accessToken string
+		mocks       authMocks
+		expErr      error
+		outPut      bool
+	}{
+		{
+			name:        "error valid token",
+			accessToken: "abc",
+			mocks: authMocks{
+				func(f *mockAuthService) {
+					f.keycloakService.On("IsValidToken", mock.Anything, "abc").Return(false, errors.New("some error"))
+				},
+			},
+			expErr: errors.New("some error"),
+		},
+		{
+			name:        "valid token",
+			accessToken: "abc",
+			mocks: authMocks{
+				func(f *mockAuthService) {
+					f.keycloakService.On("IsValidToken", mock.Anything, "abc").Return(true, nil)
+				},
+			},
+			outPut: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := &mockAuthService{
+				keycloakService: &mocks.IKeycloakService{},
+			}
+			tt.mocks.authService(m)
+			service := NewAuthService(m.keycloakService)
+			resp, err := service.IsValidToken(context.Background(), tt.accessToken)
+			if err != nil {
+				assert.Equal(t, tt.expErr, err)
+			}
+			assert.Equal(t, tt.outPut, resp)
 		})
 	}
 }

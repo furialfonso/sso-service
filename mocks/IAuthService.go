@@ -16,6 +16,30 @@ type IAuthService struct {
 	mock.Mock
 }
 
+// IsValidToken provides a mock function with given fields: ctx, accessToken
+func (_m *IAuthService) IsValidToken(ctx context.Context, accessToken string) (bool, error) {
+	ret := _m.Called(ctx, accessToken)
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, accessToken)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, accessToken)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, accessToken)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Login provides a mock function with given fields: ctx, authRequest
 func (_m *IAuthService) Login(ctx context.Context, authRequest request.AuthRequest) (response.AuthResponse, error) {
 	ret := _m.Called(ctx, authRequest)
