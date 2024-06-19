@@ -61,14 +61,16 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
-    container_name: ${APPLICATION_NAME}_api_${SCOPE}
-    image: ${REPOSITORY}/${APPLICATION_NAME}_api:${SCOPE}
+    container_name: ${APPLICATION_NAME}_${SCOPE}
+    image: ${REPOSITORY}/${APPLICATION_NAME}:${SCOPE}
     environment:
       CONFIG_DIR: /app
       SCOPE: ${SCOPE}
       PORT: ${DEFAULT_API_PORT}
+      API_PORT: ${API_PORT}
       KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
       GIN_MODE: release
+      APPLICATION_NAME: ${APPLICATION_NAME}_${SCOPE}
     build:
       context: .
       args:

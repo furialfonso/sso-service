@@ -5,12 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "COW_SSO",
+      "name": "CowSso",
       "type": "go",
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceRoot}/api/main.go",
       "env": {
+        "APPLICATION_NAME": "cow_sso_api",
         "SCOPE": "local",
         "PORT": "8080",
         "CONFIG_DIR": "${workspaceRoot}/pkg/config",
