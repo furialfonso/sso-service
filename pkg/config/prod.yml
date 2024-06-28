@@ -10,5 +10,5 @@ cow-api:
   url: http://localhost:7070
   timeout: 5s
 eureka:
-  url: http://eureka:8761/eureka/
+  url: http://eureka:8761/eureka
   timeout: 5s

@@ -1,6 +1,6 @@
 name: TEST
 keycloak:
-  host: http://keycloak:8080
+  host: http://keycloak:9001
   realm-admin: master
   user: furialfonso
   pass: Admin123
@@ -10,5 +10,5 @@ cow-api:
   url: http://localhost:7070
   timeout: 5s
 eureka:
-  url: http://eureka:8761/eureka/
+  url: http://eureka-service:8761/eureka
   timeout: 5s

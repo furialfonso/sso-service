@@ -17,6 +17,7 @@ type Dependencies struct{}
 
 func BuildDependencies() *dig.Container {
 	Container := dig.New()
+	_ = Container.Invoke(eureka.NewEurekaClient)
 	_ = Container.Provide(middleware.NewCorsConfig)
 	_ = Container.Provide(server.New)
 	_ = Container.Provide(server.NewRouter)
@@ -27,6 +28,5 @@ func BuildDependencies() *dig.Container {
 	_ = Container.Provide(restful.NewRestfulService)
 	_ = Container.Provide(handlers.NewAuthHandler)
 	_ = Container.Provide(auth.NewAuthService)
-	_ = Container.Provide(eureka.NewEurekaClient())
 	return Container
 }
