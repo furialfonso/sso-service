@@ -1,6 +1,6 @@
 name: PRODUCTION
 keycloak:
-  host: http://keycloak_prod:9000
+  host: http://keycloak_prod:8080
   realm-admin: master
   user: furialfonso
   pass: Admin123

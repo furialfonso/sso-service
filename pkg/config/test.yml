@@ -1,6 +1,6 @@
 name: TEST
 keycloak:
-  host: http://keycloak_test:9000
+  host: http://keycloak_test:8080
   realm-admin: master
   user: furialfonso
   pass: Admin123
