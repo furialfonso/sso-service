@@ -13,6 +13,7 @@ import (
 )
 
 func NewEurekaClient() {
+
 	url := config.Get().UString("eureka.url")
 	client := eureka.NewClient([]string{url})
 

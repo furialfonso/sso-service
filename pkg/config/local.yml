@@ -1,10 +1,10 @@
 name: LOCAL
 keycloak:
-  host: http://localhost:9001
+  host: http://localhost:9000
   realm-admin: master
   user: furialfonso
   pass: Admin123
-  realm: Test
+  realm: test
   client: cow
 cow-api:
   url: http://localhost:8080

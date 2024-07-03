@@ -11,12 +11,12 @@
       "mode": "auto",
       "program": "${workspaceRoot}/api/main.go",
       "env": {
-        "APPLICATION_NAME": "sso-service",
+        "APPLICATION_NAME": "sso-service-local",
         "SCOPE": "local",
         "PORT": "8080",
         "CONFIG_DIR": "${workspaceRoot}/pkg/config",
         "GIN_MODE": "release",
-        "KEYCLOAK_SECRET": "5DMSyn3G6nEjNLwwy7gVijPK9mWUfjak"
+        "KEYCLOAK_SECRET": "FgXtteL8m7RKtIXAHDq01GmmiWRUE4C5"
       }
     },
     {
