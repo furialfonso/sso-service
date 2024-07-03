@@ -11,4 +11,5 @@ cow-api:
   timeout: 5s
 eureka:
   url: http://localhost:8761/eureka
-  timeout: 5s
+  interval: 10
+  duration: 30
