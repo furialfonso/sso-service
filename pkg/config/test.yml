@@ -1,10 +1,10 @@
 name: TEST
 keycloak:
-  host: http://keycloak:9001
+  host: http://keycloak_test:9000
   realm-admin: master
   user: furialfonso
   pass: Admin123
-  realm: Test
+  realm: test
   client: cow
 cow-api:
   url: http://localhost:7070

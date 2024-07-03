@@ -1,0 +1,29 @@
+services:
+  api:
+    container_name: ${APPLICATION_NAME}-${SCOPE}
+    image: ${REPOSITORY}/${APPLICATION_NAME}:${SCOPE}
+    environment:
+      CONFIG_DIR: /app
+      SCOPE: ${SCOPE}
+      PORT: ${SSO_INTERNAL_PORT}
+      SSO_EXTERNAL_PORT: ${SSO_EXTERNAL_PORT}
+      KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
+      GIN_MODE: release
+      APPLICATION_NAME: ${APPLICATION_NAME}-${SCOPE}
+    build:
+      context: .
+      args:
+        - SCOPE=${SCOPE}
+      dockerfile: ./Dockerfile
+    ports:
+      - ${SSO_EXTERNAL_PORT}:${SSO_INTERNAL_PORT}
+    restart: always
+    networks:
+      - cownetwork
+volumes:
+  postgres-data:
+
+
+networks:
+  cownetwork:
+    external: true

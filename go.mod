@@ -3,12 +3,13 @@ module cow_sso
 go 1.21
 
 require (
+	github.com/ArthurHlt/go-eureka-client v1.1.0
 	github.com/Nerzal/gocloak/v13 v13.8.0
 	github.com/gin-contrib/cors v1.7.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/google/uuid v1.6.0
 	github.com/olebedev/config v0.0.0-20220822221314-86fa169f9f99
 	github.com/stretchr/testify v1.8.4
-	github.com/xuanbo/eureka-client v0.0.5
 	go.uber.org/dig v1.17.1
 )
 
@@ -27,6 +28,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -37,10 +39,10 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
+	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/stretchr/objx v0.5.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	github.com/xuanbo/requests v0.0.1 // indirect
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/net v0.22.0 // indirect

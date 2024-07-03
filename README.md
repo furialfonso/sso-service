@@ -100,3 +100,6 @@ https://medium.com/@kaloyanmanev/bitnami-keycloack-inside-docker-compose-import-
 ```
 https://www.youtube.com/watch?v=zR3igUft1KA&t=2044s
 ```
+
+docker-compose -f docker-compose.sso.yml down
+docker-compose -f docker-compose.sso.yml up

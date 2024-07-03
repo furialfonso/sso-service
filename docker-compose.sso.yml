@@ -1,23 +1,21 @@
-version: '3.9'
-
 services:
   postgres:
-    container_name: ${POSTGRES_HOST}
-    image: postgres:latest
+    container_name: ${POSTGRESQL_HOST}_${SCOPE}
+    image: bitnami/postgresql:latest
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRESQL_USER}
-      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
     ports:
-      - ${PORT_DB}:${PORT_DB}
+      - ${POSTGRESQL_EXTERNAL_PORT}:${POSTGRESQL_INTERNAL_PORT}
     volumes:
       - sso_db_data:/var/lib/postgresql/data
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "sh -c 'pg_isready -U ${POSTGRESQL_USER} -d ${POSTGRESQL_PASS}'"
+          "sh -c 'pg_isready -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_PASSWORD}'"
         ]
       interval: 10s
       timeout: 3s
@@ -28,19 +26,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    container_name: ${KEYCLOAK_HOST}
+    container_name: ${KEYCLOAK_HOST}_${SCOPE}
     image: bitnami/keycloak
     ports:
-      - ${EXTERNAL_PORT}:${KEYCLOAK_PORT}
+      - ${KEYCLOAK_EXTERNAL_PORT}:${KEYCLOAK_INTERNAL_PORT}
     environment:
       KEYCLOAK_ADMIN_USER: ${KEYCLOAK_ADMIN_USER}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
 
-      KEYCLOAK_DATABASE_HOST: ${POSTGRES_HOST}
-      KEYCLOAK_DATABASE_PORT: ${PORT_DB}
-      KEYCLOAK_DATABASE_NAME: ${POSTGRES_DB}
-      KEYCLOAK_DATABASE_USER: ${POSTGRES_USER}
-      KEYCLOAK_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_DATABASE_HOST: ${POSTGRESQL_HOST}_${SCOPE}
+      KEYCLOAK_DATABASE_PORT: ${POSTGRESQL_EXTERNAL_PORT}
+      KEYCLOAK_DATABASE_NAME: ${POSTGRESQL_DATABASE}
+      KEYCLOAK_DATABASE_USER: ${POSTGRESQL_USERNAME}
+      KEYCLOAK_DATABASE_PASSWORD: ${POSTGRESQL_PASSWORD}
       KEYCLOAK_ENABLE_STATISTICS: true
       KEYCLOAK_ENABLE_HEALTH_ENDPOINTS: true
     healthcheck:
@@ -49,7 +47,7 @@ services:
           "CMD",
           "curl",
           "-f",
-          "http://keycloak:${KEYCLOAK_PORT}/health/ready"
+          "http://${KEYCLOAK_HOST}_${SCOPE}:${KEYCLOAK_EXTERNAL_PORT}/health/ready"
         ]
       interval: 30s
       timeout: 10s

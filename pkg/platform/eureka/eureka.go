@@ -21,7 +21,7 @@ func NewEurekaClient() {
 	appPort := os.Getenv("PORT")
 	if os.Getenv("SCOPE") != "local" {
 		host = app
-		appPort = os.Getenv("EXTERNAL_PORT")
+		appPort = os.Getenv("SSO_EXTERNAL_PORT")
 	}
 
 	fmt.Println("appPort", appPort)
