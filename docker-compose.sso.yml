@@ -2,6 +2,7 @@ services:
   postgres:
     container_name: ${POSTGRESQL_HOST}_${SCOPE}
     image: bitnami/postgresql:latest
+    privileged: true
     restart: unless-stopped
     environment:
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
@@ -10,7 +11,7 @@ services:
     ports:
       - ${POSTGRESQL_EXTERNAL_PORT}:${POSTGRESQL_INTERNAL_PORT}
     volumes:
-      - sso_db_data:/var/lib/postgresql/data
+      - sso_db_data:/bitnami/postgresql
     healthcheck:
       test:
         [

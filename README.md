@@ -108,5 +108,3 @@ https://github.com/xuanbo/eureka-client
 
 docker-compose -f docker-compose.sso.yml down
 docker-compose -f docker-compose.sso.yml up
-
-https://www.youtube.com/watch?v=pzxtXifloSE&t=1316s
