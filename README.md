@@ -13,7 +13,7 @@ It is a 3-tier based architecture with dependency injection.
   - *Mokery*: automatic mocks for unit tests.
   - *Dig*: automatic dependency injection.
   - *Docker*: application's contenerization.
-  - *Eureka client*: subcribe application to api gateway
+  - *Eureka client*: application directory and load balancing
 
 **Run unit tests**
   - execute tests
