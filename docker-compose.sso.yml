@@ -47,7 +47,7 @@ services:
           "CMD",
           "curl",
           "-f",
-          "http://${KEYCLOAK_HOST}_${SCOPE}:${KEYCLOAK_EXTERNAL_PORT}/health/ready"
+          "http://${KEYCLOAK_HOST}_${SCOPE}:${KEYCLOAK_INTERNAL_PORT}/health/ready"
         ]
       interval: 30s
       timeout: 10s

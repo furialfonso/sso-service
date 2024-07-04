@@ -20,6 +20,17 @@ services:
     restart: always
     networks:
       - cownetwork
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://${APPLICATION_NAME}-${SCOPE}:${SSO_INTERNAL_PORT}/ping"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 volumes:
   postgres-data:
 
