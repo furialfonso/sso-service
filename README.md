@@ -1,4 +1,4 @@
-# cow_sso
+# SSO-SERVICE
 
 It is a 3-tier based architecture with dependency injection.
 
@@ -13,6 +13,7 @@ It is a 3-tier based architecture with dependency injection.
   - *Mokery*: automatic mocks for unit tests.
   - *Dig*: automatic dependency injection.
   - *Docker*: application's contenerization.
+  - *Eureka client*: subcribe application to api gateway
 
 **Run unit tests**
   - execute tests
@@ -26,6 +27,9 @@ It is a 3-tier based architecture with dependency injection.
 **Keycloak**
   - Documentation
     - https://www.keycloak.org/documentation
+  - Configuration
+    - https://www.youtube.com/watch?v=zR3igUft1KA&t=2044s
+    - https://medium.com/@kaloyanmanev/bitnami-keycloack-inside-docker-compose-import-realm-on-startup-3627a7da7f39
 
 **Gin**
   - Documentation
@@ -66,9 +70,14 @@ It is a 3-tier based architecture with dependency injection.
     - https://www.golanglearn.com/golang-tutorials/golang-dig-a-better-way-to-manage-dependency/
 
 **Start Aplication**
-  - Execute the next command for start the application.
+  Execute the next command for start the application.
+  - SSO 
   ```
-    docker-compose up -d
+    docker-compose -f docker-compose.sso.yml up/down 
+  ```
+  - API
+   ```
+    docker-compose -f docker-compose.api.yml up/down 
   ```
 **Config project**
   - For unit test
@@ -80,10 +89,12 @@ It is a 3-tier based architecture with dependency injection.
   ```
   - Environment vs-code
   ```
+    "APPLICATION_NAME": "sso-service-local",
     "SCOPE": "local",
     "PORT": "8080",
     "CONFIG_DIR": "${workspaceRoot}/pkg/config",
-    "GIN_MODE":"release",
+    "GIN_MODE": "release",
+    "KEYCLOAK_SECRET": ""
   ```
 
 **Utils**
@@ -91,20 +102,8 @@ It is a 3-tier based architecture with dependency injection.
 ```
 https://www.youtube.com/watch?v=Ms5RKs8TNU4&t=1504s
 ```
-- docker-compose keycloak
-```
-https://medium.com/@kaloyanmanev/bitnami-keycloack-inside-docker-compose-import-realm-on-startup-3627a7da7f39
-```
-- Keycloak config
-
-```
-https://www.youtube.com/watch?v=zR3igUft1KA&t=2044s
-```
 
 - Eureka client
 ```
 https://github.com/xuanbo/eureka-client
 ```
-
-docker-compose -f docker-compose.sso.yml down
-docker-compose -f docker-compose.sso.yml up
