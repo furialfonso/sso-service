@@ -21,6 +21,7 @@ func BuildDependencies() *dig.Container {
 	_ = Container.Provide(middleware.NewCorsConfig)
 	_ = Container.Provide(server.New)
 	_ = Container.Provide(server.NewRouter)
+	_ = Container.Provide(handlers.NewPrometheusHandler)
 	_ = Container.Provide(handlers.NewHandlerPing)
 	_ = Container.Provide(handlers.NewUserHandler)
 	_ = Container.Provide(services.NewUserService)

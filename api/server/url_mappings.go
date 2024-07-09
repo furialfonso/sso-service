@@ -7,23 +7,27 @@ import (
 )
 
 type Router struct {
-	pingHandler handlers.IPingHandler
-	authHandler handlers.IAuthHandler
-	userHandler handlers.IUserHandler
+	pingHandler       handlers.IPingHandler
+	authHandler       handlers.IAuthHandler
+	userHandler       handlers.IUserHandler
+	prometheusHandler handlers.IPrometheusHandler
 }
 
 func NewRouter(pingHandler handlers.IPingHandler,
 	authHandler handlers.IAuthHandler,
 	userHandler handlers.IUserHandler,
+	prometheusHandler handlers.IPrometheusHandler,
 ) *Router {
 	return &Router{
 		pingHandler,
 		authHandler,
 		userHandler,
+		prometheusHandler,
 	}
 }
 
 func (r Router) Resource(gin *gin.Engine) {
+	gin.GET("/metrics", r.prometheusHandler.GetMetrics)
 	gin.GET("/ping", r.pingHandler.Ping)
 	auth := gin.Group("/auth")
 	{
