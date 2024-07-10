@@ -18,10 +18,10 @@ type Dependencies struct{}
 func BuildDependencies() *dig.Container {
 	Container := dig.New()
 	_ = Container.Invoke(eureka.NewEurekaClient)
-	_ = Container.Provide(middleware.NewCorsConfig)
+	_ = Container.Provide(middleware.NewCorsMiddleware)
+	_ = Container.Provide(middleware.NewMetricMiddleWare)
 	_ = Container.Provide(server.New)
 	_ = Container.Provide(server.NewRouter)
-	_ = Container.Provide(handlers.NewPrometheusHandler)
 	_ = Container.Provide(handlers.NewHandlerPing)
 	_ = Container.Provide(handlers.NewUserHandler)
 	_ = Container.Provide(services.NewUserService)

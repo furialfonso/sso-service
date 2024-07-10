@@ -5,13 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ICorsConfig interface {
+type ICorsMiddleware interface {
 	CorsConfig() gin.HandlerFunc
 }
 
 type corsConfig struct{}
 
-func NewCorsConfig() ICorsConfig {
+func NewCorsMiddleware() ICorsMiddleware {
 	return &corsConfig{}
 }
 
