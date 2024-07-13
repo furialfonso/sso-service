@@ -7,8 +7,6 @@ It is a 3-tier based architecture with dependency injection.
 
 **Technologies**
   - *Golang*: programming language.
-  - *Keycloak*: sso for users' persisting.
-  - *Postgres*: data persistence required by keycloak.
   - *Gin*: framework for rest applications.
   - *Mokery*: automatic mocks for unit tests.
   - *Dig*: automatic dependency injection.
@@ -23,13 +21,6 @@ It is a 3-tier based architecture with dependency injection.
   - Look result in html
   ```
     go tool cover -html=coverage.out
-  ```
-**Keycloak**
-  - Documentation
-    - https://www.keycloak.org/documentation
-  - Configuration
-    - https://www.youtube.com/watch?v=zR3igUft1KA&t=2044s
-    - https://medium.com/@kaloyanmanev/bitnami-keycloack-inside-docker-compose-import-realm-on-startup-3627a7da7f39
 
 **Gin**
   - Documentation
@@ -70,14 +61,10 @@ It is a 3-tier based architecture with dependency injection.
     - https://www.golanglearn.com/golang-tutorials/golang-dig-a-better-way-to-manage-dependency/
 
 **Start Aplication**
-  Execute the next command for start the application.
-  - SSO 
-  ```
-    docker-compose -f docker-compose.sso.yml up/down 
-  ```
+  Execute the next command for start/stop the application.
   - API
    ```
-    docker-compose -f docker-compose.api.yml up/down 
+    docker-compose up/down 
   ```
 **Config project**
   - For unit test
