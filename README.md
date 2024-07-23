@@ -2,24 +2,24 @@
 
 It is a 3-tier based architecture with dependency injection.
 
-**Author**
+## Author
   - *Andres Felipe Alfonso Ortiz*
 
-**Technologies**
+### Technologies
   - *Golang*: programming language.
   - *Gin*: framework for rest applications.
   - *Mokery*: automatic mocks for unit tests.
   - *Dig*: automatic dependency injection.
   - *Docker*: application's contenerization.
 
-**Run unit tests**
-  - execute tests
+### Run unit tests
   ```
     export CONFIG_DIR=$(pwd)/pkg/config && export SCOPE=local && go test -v ./... -covermode=atomic -coverprofile=coverage.out -coverpkg=./... -count=1
   ```
-  - Look result in html
+  #### Look result in html
   ```
     go tool cover -html=coverage.out
+  ```
 
 **Gin**
   - Documentation
