@@ -22,7 +22,10 @@ func Start() {
 	}
 	fmt.Println("SCOPE:", scope)
 	configDir := os.Getenv("CONFIG_DIR")
-	fileConfig := fmt.Sprintf("%v/%v.yml", configDir, scope)
+	if configDir == "" {
+		panic("CONFIG_DIR environment variable is not set")
+	}
+	fileConfig := fmt.Sprintf("%v/properties.yml", configDir)
 	b, err := os.ReadFile(fileConfig)
 	if err != nil {
 		panic(err)

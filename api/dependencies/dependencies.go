@@ -5,7 +5,6 @@ import (
 	"cow_sso/api/server"
 	"cow_sso/middleware"
 	"cow_sso/pkg/auth"
-	"cow_sso/pkg/platform/eureka"
 	"cow_sso/pkg/platform/keycloak"
 	"cow_sso/pkg/platform/restful"
 	"cow_sso/pkg/services"
@@ -17,7 +16,6 @@ type Dependencies struct{}
 
 func BuildDependencies() *dig.Container {
 	Container := dig.New()
-	_ = Container.Invoke(eureka.NewEurekaClient)
 	_ = Container.Provide(middleware.NewCorsMiddleware)
 	_ = Container.Provide(middleware.NewMetricMiddleWare)
 	_ = Container.Provide(server.New)

@@ -11,7 +11,6 @@ It is a 3-tier based architecture with dependency injection.
   - *Mokery*: automatic mocks for unit tests.
   - *Dig*: automatic dependency injection.
   - *Docker*: application's contenerization.
-  - *Eureka client*: application directory and load balancing
 
 **Run unit tests**
   - execute tests
@@ -88,9 +87,4 @@ It is a 3-tier based architecture with dependency injection.
 - docker-golang
 ```
 https://www.youtube.com/watch?v=Ms5RKs8TNU4&t=1504s
-```
-
-- Eureka client
-```
-https://github.com/xuanbo/eureka-client
 ```

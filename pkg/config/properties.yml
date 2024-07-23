@@ -1,0 +1,10 @@
+keycloak:
+  host: http://localhost:8080
+  realm-admin: master
+  user: furialfonso
+  pass: Admin123
+  realm: development
+  client: cow
+cow-api:
+  url: http://localhost:8080
+  timeout: 5s

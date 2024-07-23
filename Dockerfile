@@ -15,7 +15,7 @@ RUN apk update
 RUN apk --no-cache add ca-certificates
 WORKDIR /app
 COPY --from=builder /app/main .
-COPY --from=builder /app/pkg/config/$SCOPE.yml .
+COPY --from=builder /app/pkg/config/properties.yml .
 
 ENTRYPOINT [ "./main" ]
 # docker build -t furialfonso/cow_project:latest .
