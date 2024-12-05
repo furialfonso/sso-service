@@ -64,6 +64,7 @@ It is a 3-tier based architecture with dependency injection.
   - API
    ```
     docker-compose up/down 
+    docker push furialfonso/sso-service:test
   ```
 **Config project**
   - For unit test
