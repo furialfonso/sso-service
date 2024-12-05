@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
@@ -9,12 +10,14 @@ import (
 )
 
 var (
+	instance = os.Getenv("INSTANCE_ID")
+
 	httpRequestsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_requests_total",
 			Help: "Total number of HTTP requests",
 		},
-		[]string{"method", "path", "status"},
+		[]string{"method", "path", "status", "instance"},
 	)
 	httpRequestDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
@@ -22,7 +25,7 @@ var (
 			Help:    "Duration of HTTP requests in seconds",
 			Buckets: prometheus.DefBuckets,
 		},
-		[]string{"method", "path", "status"},
+		[]string{"method", "path", "status", "instance"},
 	)
 )
 
@@ -46,10 +49,10 @@ func (p *metricMiddleWare) DefaultMetrics(c *gin.Context) {
 func (m *metricMiddleWare) PersonalMetrics(c *gin.Context) {
 	path := c.FullPath()
 	method := c.Request.Method
-	timer := prometheus.NewTimer(httpRequestDuration.WithLabelValues(method, path, ""))
+	timer := prometheus.NewTimer(httpRequestDuration.WithLabelValues(method, path, "", instance))
 	c.Next()
 	status := c.Writer.Status()
-	statusStr := http.StatusText(status)
-	httpRequestsTotal.WithLabelValues(method, path, statusStr).Inc()
+	statusStr := strconv.Itoa(status)
+	httpRequestsTotal.WithLabelValues(method, path, statusStr, instance).Inc()
 	timer.ObserveDuration()
 }
