@@ -4,7 +4,6 @@ go 1.21
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.8.0
-	github.com/gin-contrib/cors v1.7.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/olebedev/config v0.0.0-20220822221314-86fa169f9f99
 	github.com/prometheus/client_golang v1.19.1

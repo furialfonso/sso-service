@@ -16,7 +16,6 @@ type Dependencies struct{}
 
 func BuildDependencies() *dig.Container {
 	Container := dig.New()
-	_ = Container.Provide(middleware.NewCorsMiddleware)
 	_ = Container.Provide(middleware.NewMetricMiddleWare)
 	_ = Container.Provide(server.New)
 	_ = Container.Provide(server.NewRouter)
