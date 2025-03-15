@@ -3,7 +3,7 @@ package team
 import (
 	"context"
 	"cow_sso/mocks"
-	"cow_sso/pkg/repository/team/dto"
+	"cow_sso/pkg/integration/team/dto"
 	"encoding/json"
 	"errors"
 	"testing"
@@ -12,12 +12,12 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type mockTeamRepository struct {
+type mockTeamClient struct {
 	restfulService *mocks.IRestClient
 }
 
 type teamMocks struct {
-	teamRepository func(f *mockTeamRepository)
+	teamClient func(f *mockTeamClient)
 }
 
 func Test_GetTeamsByUser(t *testing.T) {
@@ -29,10 +29,10 @@ func Test_GetTeamsByUser(t *testing.T) {
 		expErr error
 	}{
 		{
-			name:   "error client",
+			name:   "error integration",
 			userID: "ABC",
 			mocks: teamMocks{
-				func(f *mockTeamRepository) {
+				func(f *mockTeamClient) {
 					f.restfulService.On("Get", mock.Anything, mock.Anything, "5s").Return(nil, errors.New("some error"))
 				},
 			},
@@ -42,7 +42,7 @@ func Test_GetTeamsByUser(t *testing.T) {
 			name:   "error unmarshal teams by user",
 			userID: "ABC",
 			mocks: teamMocks{
-				func(f *mockTeamRepository) {
+				func(f *mockTeamClient) {
 					b, _ := json.Marshal("teams")
 					f.restfulService.On("Get", mock.Anything, mock.Anything, "5s").Return(b, nil)
 				},
@@ -53,7 +53,7 @@ func Test_GetTeamsByUser(t *testing.T) {
 			name:   "full flow",
 			userID: "ABC",
 			mocks: teamMocks{
-				func(f *mockTeamRepository) {
+				func(f *mockTeamClient) {
 					teams := dto.TeamsByUserResponse{
 						Teams: []dto.TeamResponse{
 							{
@@ -78,11 +78,11 @@ func Test_GetTeamsByUser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &mockTeamRepository{
+			m := &mockTeamClient{
 				restfulService: &mocks.IRestClient{},
 			}
-			tt.mocks.teamRepository(m)
-			r := NewTeamRepository(m.restfulService)
+			tt.mocks.teamClient(m)
+			r := NewTeamClient(m.restfulService)
 			team, err := r.GetTeamsByUser(context.Background(), tt.userID)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)

@@ -7,8 +7,8 @@ import (
 
 	"cow_sso/api/handlers/user/request"
 	"cow_sso/api/handlers/user/response"
-	"cow_sso/pkg/repository/keycloak"
-	"cow_sso/pkg/repository/team"
+	"cow_sso/pkg/integration/keycloak"
+	"cow_sso/pkg/integration/team"
 
 	"github.com/Nerzal/gocloak/v13"
 )
@@ -26,22 +26,22 @@ type IUserService interface {
 }
 
 type userService struct {
-	keycloakRepository keycloak.IKeycloakRepository
-	teamRepository     team.ITeamRepository
+	keycloakClient keycloak.IKeycloakClient
+	teamClient     team.ITeamClient
 }
 
-func NewUserService(keycloakRepository keycloak.IKeycloakRepository,
-	teamRepository team.ITeamRepository,
+func NewUserService(keycloakClient keycloak.IKeycloakClient,
+	teamClient team.ITeamClient,
 ) IUserService {
 	return &userService{
-		keycloakRepository: keycloakRepository,
-		teamRepository:     teamRepository,
+		keycloakClient: keycloakClient,
+		teamClient:     teamClient,
 	}
 }
 
 func (us *userService) GetAll(ctx context.Context, token string) ([]response.UserResponse, error) {
 	var userResponse []response.UserResponse
-	users, err := us.keycloakRepository.GetAllUsers(ctx, token)
+	users, err := us.keycloakClient.GetAllUsers(ctx, token)
 	if err != nil {
 		return userResponse, err
 	}
@@ -59,7 +59,7 @@ func (us *userService) GetAll(ctx context.Context, token string) ([]response.Use
 
 func (us *userService) GetByNickName(ctx context.Context, token string, nickName string) (response.UserResponse, error) {
 	var userResponse response.UserResponse
-	user, err := us.keycloakRepository.GetUserByNickName(ctx, token, nickName)
+	user, err := us.keycloakClient.GetUserByNickName(ctx, token, nickName)
 	if err != nil {
 		return userResponse, err
 	}
@@ -74,11 +74,11 @@ func (us *userService) GetByNickName(ctx context.Context, token string, nickName
 }
 
 func (us *userService) Create(ctx context.Context, token string, userRequest request.UserRequest) error {
-	role, err := us.keycloakRepository.GetRoleByID(ctx, token, _roleName)
+	role, err := us.keycloakClient.GetRoleByID(ctx, token, _roleName)
 	if err != nil {
 		return err
 	}
-	_, err = us.keycloakRepository.CreateUser(ctx, token, role, gocloak.User{
+	_, err = us.keycloakClient.CreateUser(ctx, token, role, gocloak.User{
 		Username:  &userRequest.NickName,
 		FirstName: &userRequest.Name,
 		LastName:  &userRequest.LastName,
@@ -89,12 +89,12 @@ func (us *userService) Create(ctx context.Context, token string, userRequest req
 
 func (us *userService) Delete(ctx context.Context, token string, nickName string) (string, error) {
 	var userName string
-	user, err := us.keycloakRepository.GetUserByNickName(ctx, token, nickName)
+	user, err := us.keycloakClient.GetUserByNickName(ctx, token, nickName)
 	if err != nil {
 		return userName, err
 	}
 
-	teams, err := us.teamRepository.GetTeamsByUser(ctx, *user.ID)
+	teams, err := us.teamClient.GetTeamsByUser(ctx, *user.ID)
 	if err != nil {
 		return userName, err
 	}
@@ -103,7 +103,7 @@ func (us *userService) Delete(ctx context.Context, token string, nickName string
 		return userName, errors.New(fmt.Sprintf("user %s has teams", nickName))
 	}
 
-	err = us.keycloakRepository.DeleteUserByID(ctx, token, *user.ID)
+	err = us.keycloakClient.DeleteUserByID(ctx, token, *user.ID)
 	if err != nil {
 		return userName, err
 	}

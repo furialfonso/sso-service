@@ -2,9 +2,9 @@ package team
 
 import (
 	"context"
-	"cow_sso/pkg/client/restful"
 	"cow_sso/pkg/config"
-	"cow_sso/pkg/repository/team/dto"
+	"cow_sso/pkg/integration/restful"
+	"cow_sso/pkg/integration/team/dto"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,21 +14,21 @@ const (
 	_getTeamsByUser = "/teams/user"
 )
 
-type ITeamRepository interface {
+type ITeamClient interface {
 	GetTeamsByUser(ctx context.Context, userID string) (dto.TeamsByUserResponse, error)
 }
 
-type teamRepository struct {
+type teamClient struct {
 	restfulService restful.IRestClient
 }
 
-func NewTeamRepository(restfulService restful.IRestClient) ITeamRepository {
-	return &teamRepository{
+func NewTeamClient(restfulService restful.IRestClient) ITeamClient {
+	return &teamClient{
 		restfulService: restfulService,
 	}
 }
 
-func (t *teamRepository) GetTeamsByUser(ctx context.Context, userID string) (dto.TeamsByUserResponse, error) {
+func (t *teamClient) GetTeamsByUser(ctx context.Context, userID string) (dto.TeamsByUserResponse, error) {
 	var teams dto.TeamsByUserResponse
 
 	url := fmt.Sprintf("%s%s/%s", config.Get().UString("cow-api.url"), _getTeamsByUser, userID)

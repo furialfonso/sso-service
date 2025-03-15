@@ -16,77 +16,73 @@ It is a 3-tier based architecture with dependency injection.
 ```mermaid
 graph TB
     User((External User))
-    
-    subgraph "SSO Service"
-        subgraph "API Layer"
-            GinServer["API Server<br>Gin Framework"]
-            
-            subgraph "Handlers"
-                AuthHandler["Auth Handler<br>Go"]
-                UserHandler["User Handler<br>Go"]
-                PingHandler["Ping Handler<br>Go"]
-            end
-            
-            subgraph "Middleware"
-                MetricsMiddleware["Metrics Middleware<br>Go"]
-            end
-            
-            Router["URL Router<br>Gin"]
+
+    subgraph "SSO Service System"
+        subgraph "API Gateway Container"
+            GinServer["API Server<br>(Gin)"]
+            Router["URL Router<br>(Gin Router)"]
+            MetricsMiddleware["Metrics Middleware<br>(Prometheus)"]
         end
-        
-        subgraph "Service Layer"
-            AuthService["Auth Service<br>Go"]
-            UserService["User Service<br>Go"]
+
+        subgraph "Handler Container"
+            AuthHandler["Auth Handler<br>(Go)"]
+            UserHandler["User Handler<br>(Go)"]
+            PingHandler["Ping Handler<br>(Go)"]
         end
-        
-        subgraph "Repository Layer"
-            KeycloakRepo["Keycloak Repository<br>Go"]
-            TeamRepo["Team Repository<br>Go"]
+
+        subgraph "Service Container"
+            AuthService["Auth Service<br>(Go)"]
+            UserService["User Service<br>(Go)"]
         end
-        
-        subgraph "Client Layer"
-            RestClient["REST Client<br>Go HTTP"]
+
+        subgraph "Client Container"
+            KeycloakClient["Keycloak Client<br>(GoCloak)"]
+            RestClient["REST Client<br>(Go HTTP)"]
+            TeamClient["Team Client<br>(Go)"]
         end
-    end
-    
-    subgraph "External Systems"
-        KeycloakAuth["Keycloak Auth Server<br>Keycloak"]
-        CowAPI["COW API<br>REST API"]
+
+        subgraph "External Systems"
+            Keycloak["Keycloak Server<br>(Keycloak)"]
+            TeamAPI["Team API<br>(REST)"]
+            PrometheusMetrics["Prometheus<br>(Metrics)"]
+        end
     end
 
     %% User interactions
-    User -->|"Authenticates"| GinServer
-    
-    %% API Layer connections
+    User -->|"HTTP Requests"| GinServer
+
+    %% API Gateway relationships
     GinServer -->|"Routes requests"| Router
-    Router -->|"Auth requests"| AuthHandler
-    Router -->|"User requests"| UserHandler
-    Router -->|"Health checks"| PingHandler
-    GinServer -->|"Applies"| MetricsMiddleware
-    
-    %% Handler to Service connections
+    Router -->|"Applies"| MetricsMiddleware
+    MetricsMiddleware -->|"Exposes metrics"| PrometheusMetrics
+
+    %% Router to Handler relationships
+    Router -->|"/auth/*"| AuthHandler
+    Router -->|"/users/*"| UserHandler
+    Router -->|"/ping"| PingHandler
+
+    %% Handler to Service relationships
     AuthHandler -->|"Uses"| AuthService
     UserHandler -->|"Uses"| UserService
+
+    %% Service to Client relationships
+    AuthService -->|"Authenticates via"| KeycloakClient
+    UserService -->|"Manages users via"| KeycloakClient
+    UserService -->|"Gets team info via"| TeamClient
+    TeamClient -->|"Makes HTTP calls via"| RestClient
+
+    %% External system connections
+    KeycloakClient -->|"Authenticates/Manages users"| Keycloak
+    TeamClient -->|"Fetches team data"| TeamAPI
+
+    %% Styling
+    classDef container fill:#e6e6e6,stroke:#666,stroke-width:2px
+    classDef component fill:#fff,stroke:#000,stroke-width:1px
+    classDef external fill:#ccf,stroke:#66f,stroke-width:2px
     
-    %% Service to Repository connections
-    AuthService -->|"Uses"| KeycloakRepo
-    UserService -->|"Uses"| KeycloakRepo
-    UserService -->|"Uses"| TeamRepo
-    
-    %% Repository to External Systems connections
-    KeycloakRepo -->|"Authenticates/Manages users"| KeycloakAuth
-    TeamRepo -->|"Fetches team data"| RestClient
-    RestClient -->|"Makes HTTP requests"| CowAPI
-    
-    %% Main API endpoints
-    Router -->|"POST /auth/login"| AuthHandler
-    Router -->|"POST /auth/logout"| AuthHandler
-    Router -->|"POST /auth/valid-token"| AuthHandler
-    Router -->|"GET /users"| UserHandler
-    Router -->|"GET /users/:code"| UserHandler
-    Router -->|"POST /users"| UserHandler
-    Router -->|"DELETE /users/:code"| UserHandler
-    Router -->|"GET /ping"| PingHandler
+    class GinServer,Handler,Service,Client container
+    class Router,AuthHandler,UserHandler,PingHandler,AuthService,UserService,KeycloakClient,RestClient,TeamClient component
+    class Keycloak,TeamAPI,PrometheusMetrics external
 ```
 
 ### Run unit tests

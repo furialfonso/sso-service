@@ -15,7 +15,7 @@ import (
 )
 
 type mockAuthService struct {
-	keycloakRepository *mocks.IKeycloakRepository
+	keycloakClient *mocks.IKeycloakClient
 }
 
 type authMocks struct {
@@ -39,7 +39,7 @@ func Test_Login(t *testing.T) {
 			mocks: authMocks{
 				func(f *mockAuthService) {
 					x := gocloak.JWT{}
-					f.keycloakRepository.On("Login", mock.Anything, "user", "password").Return(&x, errors.New("some error"))
+					f.keycloakClient.On("Login", mock.Anything, "user", "password").Return(&x, errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -58,7 +58,7 @@ func Test_Login(t *testing.T) {
 						RefreshToken:     "refresh_token",
 						RefreshExpiresIn: 3600,
 					}
-					f.keycloakRepository.On("Login", mock.Anything, "user", "password").Return(&x, nil)
+					f.keycloakClient.On("Login", mock.Anything, "user", "password").Return(&x, nil)
 				},
 			},
 			outPut: response.AuthResponse{
@@ -72,10 +72,10 @@ func Test_Login(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockAuthService{
-				keycloakRepository: &mocks.IKeycloakRepository{},
+				keycloakClient: &mocks.IKeycloakClient{},
 			}
 			tt.mocks.authService(m)
-			service := NewAuthService(m.keycloakRepository)
+			service := NewAuthService(m.keycloakClient)
 			auth, err := service.Login(context.Background(), tt.authRequest)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)
@@ -99,7 +99,7 @@ func Test_Logout(t *testing.T) {
 			},
 			mocks: authMocks{
 				func(f *mockAuthService) {
-					f.keycloakRepository.On("Logout", mock.Anything, "refresh_token").Return(errors.New("some error"))
+					f.keycloakClient.On("Logout", mock.Anything, "refresh_token").Return(errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -111,7 +111,7 @@ func Test_Logout(t *testing.T) {
 			},
 			mocks: authMocks{
 				func(f *mockAuthService) {
-					f.keycloakRepository.On("Logout", mock.Anything, "refresh_token").Return(nil)
+					f.keycloakClient.On("Logout", mock.Anything, "refresh_token").Return(nil)
 				},
 			},
 		},
@@ -119,10 +119,10 @@ func Test_Logout(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockAuthService{
-				keycloakRepository: &mocks.IKeycloakRepository{},
+				keycloakClient: &mocks.IKeycloakClient{},
 			}
 			tt.mocks.authService(m)
-			service := NewAuthService(m.keycloakRepository)
+			service := NewAuthService(m.keycloakClient)
 			err := service.Logout(context.Background(), tt.refreshTokenRequest)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)
@@ -144,7 +144,7 @@ func Test_IsValidToken(t *testing.T) {
 			accessToken: "abc",
 			mocks: authMocks{
 				func(f *mockAuthService) {
-					f.keycloakRepository.On("IsValidToken", mock.Anything, "abc").Return(false, errors.New("some error"))
+					f.keycloakClient.On("IsValidToken", mock.Anything, "abc").Return(false, errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -154,7 +154,7 @@ func Test_IsValidToken(t *testing.T) {
 			accessToken: "abc",
 			mocks: authMocks{
 				func(f *mockAuthService) {
-					f.keycloakRepository.On("IsValidToken", mock.Anything, "abc").Return(true, nil)
+					f.keycloakClient.On("IsValidToken", mock.Anything, "abc").Return(true, nil)
 				},
 			},
 			outPut: true,
@@ -163,10 +163,10 @@ func Test_IsValidToken(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockAuthService{
-				keycloakRepository: &mocks.IKeycloakRepository{},
+				keycloakClient: &mocks.IKeycloakClient{},
 			}
 			tt.mocks.authService(m)
-			service := NewAuthService(m.keycloakRepository)
+			service := NewAuthService(m.keycloakClient)
 			resp, err := service.IsValidToken(context.Background(), tt.accessToken)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)

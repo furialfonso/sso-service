@@ -2,13 +2,12 @@ package user
 
 import (
 	"context"
-	"errors"
-	"testing"
-
 	"cow_sso/api/handlers/user/request"
 	"cow_sso/api/handlers/user/response"
 	"cow_sso/mocks"
-	"cow_sso/pkg/repository/team/dto"
+	"cow_sso/pkg/integration/team/dto"
+	"errors"
+	"testing"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/stretchr/testify/assert"
@@ -16,8 +15,8 @@ import (
 )
 
 type mockUserService struct {
-	keycloakRepository *mocks.IKeycloakRepository
-	teamRepository     *mocks.ITeamRepository
+	keycloakClient *mocks.IKeycloakClient
+	teamClient     *mocks.ITeamClient
 }
 
 type userMocks struct {
@@ -35,7 +34,7 @@ func Test_GetAll(t *testing.T) {
 			name: "error get users",
 			mocks: userMocks{
 				userService: func(f *mockUserService) {
-					f.keycloakRepository.Mock.On("GetAllUsers", mock.Anything, "ABC").Return([]*gocloak.User{}, errors.New("some error"))
+					f.keycloakClient.Mock.On("GetAllUsers", mock.Anything, "ABC").Return([]*gocloak.User{}, errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -49,7 +48,7 @@ func Test_GetAll(t *testing.T) {
 					lastName := "fernandez"
 					email := "diego@gmail.com"
 					userName := "diegof"
-					f.keycloakRepository.Mock.On("GetAllUsers", mock.Anything, "ABC").Return([]*gocloak.User{
+					f.keycloakClient.Mock.On("GetAllUsers", mock.Anything, "ABC").Return([]*gocloak.User{
 						{
 							ID:        &id,
 							FirstName: &firstName,
@@ -74,11 +73,11 @@ func Test_GetAll(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockUserService{
-				keycloakRepository: &mocks.IKeycloakRepository{},
-				teamRepository:     &mocks.ITeamRepository{},
+				keycloakClient: &mocks.IKeycloakClient{},
+				teamClient:     &mocks.ITeamClient{},
 			}
 			tt.mocks.userService(m)
-			service := NewUserService(m.keycloakRepository, m.teamRepository)
+			service := NewUserService(m.keycloakClient, m.teamClient)
 			users, err := service.GetAll(context.Background(), mock.Anything)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)
@@ -102,7 +101,7 @@ func Test_GetByNickName(t *testing.T) {
 			mocks: userMocks{
 				userService: func(f *mockUserService) {
 					user := gocloak.User{}
-					f.keycloakRepository.Mock.On("GetUserByNickName", mock.Anything, "ABC", "diegof").Return(&user, errors.New("some error"))
+					f.keycloakClient.Mock.On("GetUserByNickName", mock.Anything, "ABC", "diegof").Return(&user, errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -124,7 +123,7 @@ func Test_GetByNickName(t *testing.T) {
 						Email:     &email,
 						Username:  &userName,
 					}
-					f.keycloakRepository.Mock.On("GetUserByNickName", mock.Anything, "ABC", "diegof").Return(&user, nil)
+					f.keycloakClient.Mock.On("GetUserByNickName", mock.Anything, "ABC", "diegof").Return(&user, nil)
 				},
 			},
 			outPut: response.UserResponse{
@@ -139,11 +138,11 @@ func Test_GetByNickName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockUserService{
-				keycloakRepository: &mocks.IKeycloakRepository{},
-				teamRepository:     &mocks.ITeamRepository{},
+				keycloakClient: &mocks.IKeycloakClient{},
+				teamClient:     &mocks.ITeamClient{},
 			}
 			tt.mocks.userService(m)
-			service := NewUserService(m.keycloakRepository, m.teamRepository)
+			service := NewUserService(m.keycloakClient, m.teamClient)
 			users, err := service.GetByNickName(context.Background(), mock.Anything, tt.nickName)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)
@@ -171,7 +170,7 @@ func Test_Create(t *testing.T) {
 			mocks: userMocks{
 				userService: func(f *mockUserService) {
 					role := gocloak.Role{}
-					f.keycloakRepository.Mock.On("GetRoleByID", mock.Anything, "ABC", "user").Return(&role, errors.New("some error"))
+					f.keycloakClient.Mock.On("GetRoleByID", mock.Anything, "ABC", "user").Return(&role, errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -187,12 +186,12 @@ func Test_Create(t *testing.T) {
 			mocks: userMocks{
 				userService: func(f *mockUserService) {
 					role := gocloak.Role{}
-					f.keycloakRepository.Mock.On("GetRoleByID", mock.Anything, "ABC", "user").Return(&role, nil)
+					f.keycloakClient.Mock.On("GetRoleByID", mock.Anything, "ABC", "user").Return(&role, nil)
 					firstName := "diego"
 					lastName := "fernandez"
 					email := "diegof@gmail.com"
 					userName := "diegof"
-					f.keycloakRepository.Mock.On("CreateUser", mock.Anything, "ABC", &role, gocloak.User{
+					f.keycloakClient.Mock.On("CreateUser", mock.Anything, "ABC", &role, gocloak.User{
 						FirstName: &firstName,
 						LastName:  &lastName,
 						Email:     &email,
@@ -213,12 +212,12 @@ func Test_Create(t *testing.T) {
 			mocks: userMocks{
 				userService: func(f *mockUserService) {
 					role := gocloak.Role{}
-					f.keycloakRepository.Mock.On("GetRoleByID", mock.Anything, "ABC", "user").Return(&role, nil)
+					f.keycloakClient.Mock.On("GetRoleByID", mock.Anything, "ABC", "user").Return(&role, nil)
 					firstName := "diego"
 					lastName := "fernandez"
 					email := "diegof@gmail.com"
 					userName := "diegof"
-					f.keycloakRepository.Mock.On("CreateUser", mock.Anything, "ABC", &role, gocloak.User{
+					f.keycloakClient.Mock.On("CreateUser", mock.Anything, "ABC", &role, gocloak.User{
 						FirstName: &firstName,
 						LastName:  &lastName,
 						Email:     &email,
@@ -231,11 +230,11 @@ func Test_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockUserService{
-				keycloakRepository: &mocks.IKeycloakRepository{},
-				teamRepository:     &mocks.ITeamRepository{},
+				keycloakClient: &mocks.IKeycloakClient{},
+				teamClient:     &mocks.ITeamClient{},
 			}
 			tt.mocks.userService(m)
-			service := NewUserService(m.keycloakRepository, m.teamRepository)
+			service := NewUserService(m.keycloakClient, m.teamClient)
 			err := service.Create(context.Background(), mock.Anything, tt.userRequest)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)
@@ -265,7 +264,7 @@ func Test_Delete(t *testing.T) {
 						ID:       &id,
 						Username: &x,
 					}
-					f.keycloakRepository.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, errors.New("some error"))
+					f.keycloakClient.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -282,8 +281,8 @@ func Test_Delete(t *testing.T) {
 						ID:       &id,
 						Username: &x,
 					}
-					f.keycloakRepository.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
-					f.teamRepository.Mock.On("GetTeamsByUser", mock.Anything, "AXYZT").Return(dto.TeamsByUserResponse{}, errors.New("some error"))
+					f.keycloakClient.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
+					f.teamClient.Mock.On("GetTeamsByUser", mock.Anything, "AXYZT").Return(dto.TeamsByUserResponse{}, errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -300,8 +299,8 @@ func Test_Delete(t *testing.T) {
 						ID:       &id,
 						Username: &x,
 					}
-					f.keycloakRepository.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
-					f.teamRepository.Mock.On("GetTeamsByUser", mock.Anything, "AXYZT").Return(dto.TeamsByUserResponse{
+					f.keycloakClient.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
+					f.teamClient.Mock.On("GetTeamsByUser", mock.Anything, "AXYZT").Return(dto.TeamsByUserResponse{
 						Teams: []dto.TeamResponse{
 							{
 								Code: "xs",
@@ -325,9 +324,9 @@ func Test_Delete(t *testing.T) {
 						ID:       &id,
 						Username: &x,
 					}
-					f.keycloakRepository.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
-					f.teamRepository.Mock.On("GetTeamsByUser", mock.Anything, "AXYZT").Return(dto.TeamsByUserResponse{}, nil)
-					f.keycloakRepository.Mock.On("DeleteUserByID", mock.Anything, "ABC", "AXYZT").Return(errors.New("some error"))
+					f.keycloakClient.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
+					f.teamClient.Mock.On("GetTeamsByUser", mock.Anything, "AXYZT").Return(dto.TeamsByUserResponse{}, nil)
+					f.keycloakClient.Mock.On("DeleteUserByID", mock.Anything, "ABC", "AXYZT").Return(errors.New("some error"))
 				},
 			},
 			expErr: errors.New("some error"),
@@ -344,9 +343,9 @@ func Test_Delete(t *testing.T) {
 						ID:       &id,
 						Username: &x,
 					}
-					f.keycloakRepository.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
-					f.teamRepository.Mock.On("GetTeamsByUser", mock.Anything, "AXYZT").Return(dto.TeamsByUserResponse{}, nil)
-					f.keycloakRepository.Mock.On("DeleteUserByID", mock.Anything, "ABC", "AXYZT").Return(nil)
+					f.keycloakClient.Mock.On("GetUserByNickName", mock.Anything, "ABC", "1234").Return(&user, nil)
+					f.teamClient.Mock.On("GetTeamsByUser", mock.Anything, "AXYZT").Return(dto.TeamsByUserResponse{}, nil)
+					f.keycloakClient.Mock.On("DeleteUserByID", mock.Anything, "ABC", "AXYZT").Return(nil)
 				},
 			},
 			outPut: "diego",
@@ -355,11 +354,11 @@ func Test_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockUserService{
-				keycloakRepository: &mocks.IKeycloakRepository{},
-				teamRepository:     &mocks.ITeamRepository{},
+				keycloakClient: &mocks.IKeycloakClient{},
+				teamClient:     &mocks.ITeamClient{},
 			}
 			tt.mocks.userService(m)
-			service := NewUserService(m.keycloakRepository, m.teamRepository)
+			service := NewUserService(m.keycloakClient, m.teamClient)
 			users, err := service.Delete(context.Background(), tt.token, tt.nickName)
 			if err != nil {
 				assert.Equal(t, tt.expErr, err)

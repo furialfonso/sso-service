@@ -6,9 +6,9 @@ import (
 	userHandler "cow_sso/api/handlers/user"
 	"cow_sso/api/server"
 	"cow_sso/middleware"
-	"cow_sso/pkg/client/restful"
-	"cow_sso/pkg/repository/keycloak"
-	"cow_sso/pkg/repository/team"
+	"cow_sso/pkg/integration/keycloak"
+	"cow_sso/pkg/integration/restful"
+	"cow_sso/pkg/integration/team"
 	authService "cow_sso/pkg/service/auth"
 	userService "cow_sso/pkg/service/user"
 
@@ -30,8 +30,8 @@ func BuildDependencies() *dig.Container {
 	_ = Container.Provide(userService.NewUserService)
 	_ = Container.Provide(authService.NewAuthService)
 	//repositories
-	_ = Container.Provide(keycloak.NewKeycloakRepository)
-	_ = Container.Provide(team.NewTeamRepository)
+	_ = Container.Provide(keycloak.NewKeycloakClient)
+	_ = Container.Provide(team.NewTeamClient)
 	//platform
 	_ = Container.Provide(restful.NewRestClient)
 	return Container
