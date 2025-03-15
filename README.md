@@ -75,14 +75,30 @@ graph TB
     KeycloakClient -->|"Authenticates/Manages users"| Keycloak
     TeamClient -->|"Fetches team data"| TeamAPI
 
-    %% Styling
-    classDef container fill:#e6e6e6,stroke:#666,stroke-width:2px
-    classDef component fill:#fff,stroke:#000,stroke-width:1px
-    classDef external fill:#ccf,stroke:#66f,stroke-width:2px
-    
-    class GinServer,Handler,Service,Client container
-    class Router,AuthHandler,UserHandler,PingHandler,AuthService,UserService,KeycloakClient,RestClient,TeamClient component
-    class Keycloak,TeamAPI,PrometheusMetrics external
+    %% Styling TOGAF
+    classDef apiLayer fill:#cce5ff,stroke:#007bff,stroke-width:2px;
+    classDef appLayer fill:#d4edda,stroke:#28a745,stroke-width:2px;
+    classDef integrationLayer fill:#ffeeba,stroke:#ff9800,stroke-width:2px;
+    classDef infraLayer fill:#e6e6e6,stroke:#666,stroke-width:2px;
+
+    class GinServer apiLayer;
+    class Router apiLayer;
+    class MetricsMiddleware apiLayer;
+
+    class AuthHandler appLayer;
+    class UserHandler appLayer;
+    class PingHandler appLayer;
+
+    class AuthService appLayer;
+    class UserService appLayer;
+
+    class KeycloakClient integrationLayer;
+    class RestClient integrationLayer;
+    class TeamClient integrationLayer;
+
+    class Keycloak infraLayer;
+    class TeamAPI infraLayer;
+    class PrometheusMetrics infraLayer;
 ```
 
 ### Run unit tests
