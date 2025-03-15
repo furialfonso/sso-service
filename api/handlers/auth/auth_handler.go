@@ -1,12 +1,11 @@
-package handlers
+package auth
 
 import (
+	"cow_sso/api/handlers/auth/request"
+	"cow_sso/api/handlers/errors"
+	"cow_sso/pkg/service/auth"
 	"net/http"
 	"strings"
-
-	"cow_sso/api/dto/request"
-	"cow_sso/api/dto/response"
-	"cow_sso/pkg/auth"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +30,7 @@ func (a *authHandler) Login(c *gin.Context) {
 	ctx := c.Request.Context()
 	var authRequest request.AuthRequest
 	if err := c.BindJSON(&authRequest); err != nil {
-		c.JSON(http.StatusBadRequest, response.ApiErrors{
+		c.JSON(http.StatusBadRequest, errors.ApiErrors{
 			Code:    http.StatusBadRequest,
 			Message: "invalid format",
 		})
@@ -39,7 +38,7 @@ func (a *authHandler) Login(c *gin.Context) {
 	}
 	token, err := a.authService.Login(ctx, authRequest)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.ApiErrors{
+		c.JSON(http.StatusInternalServerError, errors.ApiErrors{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
 		})
@@ -53,14 +52,14 @@ func (a *authHandler) Logout(c *gin.Context) {
 	ctx := c.Request.Context()
 	var refreshTokenRequest request.RefreshTokenRequest
 	if err := c.BindJSON(&refreshTokenRequest); err != nil {
-		c.JSON(http.StatusBadRequest, response.ApiErrors{
+		c.JSON(http.StatusBadRequest, errors.ApiErrors{
 			Code:    http.StatusBadRequest,
 			Message: "invalid format",
 		})
 		return
 	}
 	if err := a.authService.Logout(ctx, refreshTokenRequest); err != nil {
-		c.JSON(http.StatusInternalServerError, response.ApiErrors{
+		c.JSON(http.StatusInternalServerError, errors.ApiErrors{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
 		})
@@ -73,7 +72,7 @@ func (a *authHandler) IsValidToken(c *gin.Context) {
 	ctx := c.Request.Context()
 	auth := c.GetHeader("Authorization")
 	if auth == "" {
-		c.JSON(http.StatusBadRequest, response.ApiErrors{
+		c.JSON(http.StatusBadRequest, errors.ApiErrors{
 			Code:    http.StatusBadRequest,
 			Message: "token is required",
 		})
@@ -81,7 +80,7 @@ func (a *authHandler) IsValidToken(c *gin.Context) {
 	}
 	token := strings.Split(auth, " ")
 	if len(token) != 2 || token[0] != "Bearer" {
-		c.JSON(http.StatusBadRequest, response.ApiErrors{
+		c.JSON(http.StatusBadRequest, errors.ApiErrors{
 			Code:    http.StatusBadRequest,
 			Message: "invalid token format",
 		})
@@ -90,7 +89,7 @@ func (a *authHandler) IsValidToken(c *gin.Context) {
 
 	isValid, err := a.authService.IsValidToken(ctx, token[1])
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, response.ApiErrors{
+		c.JSON(http.StatusInternalServerError, errors.ApiErrors{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
 		})

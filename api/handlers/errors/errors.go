@@ -1,4 +1,4 @@
-package response
+package errors
 
 type ApiErrors struct {
 	Message string `json:"message"`

@@ -1,4 +1,4 @@
-package handlers
+package auth
 
 import (
 	"bytes"
@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cow_sso/api/dto/request"
-	"cow_sso/api/dto/response"
+	"cow_sso/api/handlers/auth/request"
+	"cow_sso/api/handlers/auth/response"
 	"cow_sso/mocks"
 
 	"github.com/gin-gonic/gin"

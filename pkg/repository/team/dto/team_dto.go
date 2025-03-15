@@ -1,4 +1,4 @@
-package services
+package dto
 
 type TeamsByUserResponse struct {
 	Teams []TeamResponse `json:"teams"`

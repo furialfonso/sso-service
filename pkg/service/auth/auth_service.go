@@ -3,9 +3,9 @@ package auth
 import (
 	"context"
 
-	"cow_sso/api/dto/request"
-	"cow_sso/api/dto/response"
-	"cow_sso/pkg/platform/keycloak"
+	"cow_sso/api/handlers/auth/request"
+	"cow_sso/api/handlers/auth/response"
+	"cow_sso/pkg/repository/keycloak"
 )
 
 type IAuthService interface {
@@ -15,18 +15,18 @@ type IAuthService interface {
 }
 
 type authService struct {
-	keycloakService keycloak.IKeycloakService
+	keycloakRepository keycloak.IKeycloakRepository
 }
 
-func NewAuthService(keycloakService keycloak.IKeycloakService) IAuthService {
+func NewAuthService(keycloakRepository keycloak.IKeycloakRepository) IAuthService {
 	return &authService{
-		keycloakService: keycloakService,
+		keycloakRepository: keycloakRepository,
 	}
 }
 
 func (a *authService) Login(ctx context.Context, authRequest request.AuthRequest) (response.AuthResponse, error) {
 	var authResponse response.AuthResponse
-	token, err := a.keycloakService.Login(ctx, authRequest.User, authRequest.Password)
+	token, err := a.keycloakRepository.Login(ctx, authRequest.User, authRequest.Password)
 	if err != nil {
 		return authResponse, err
 	}
@@ -38,9 +38,9 @@ func (a *authService) Login(ctx context.Context, authRequest request.AuthRequest
 }
 
 func (a *authService) Logout(ctx context.Context, refreshTokenRequest request.RefreshTokenRequest) error {
-	return a.keycloakService.Logout(ctx, refreshTokenRequest.RefreshToken)
+	return a.keycloakRepository.Logout(ctx, refreshTokenRequest.RefreshToken)
 }
 
 func (a *authService) IsValidToken(ctx context.Context, accessToken string) (bool, error) {
-	return a.keycloakService.IsValidToken(ctx, accessToken)
+	return a.keycloakRepository.IsValidToken(ctx, accessToken)
 }

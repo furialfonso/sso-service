@@ -2,19 +2,21 @@ package server
 
 import (
 	"cow_sso/api/handlers"
+	"cow_sso/api/handlers/auth"
+	"cow_sso/api/handlers/user"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Router struct {
 	pingHandler handlers.IPingHandler
-	authHandler handlers.IAuthHandler
-	userHandler handlers.IUserHandler
+	authHandler auth.IAuthHandler
+	userHandler user.IUserHandler
 }
 
 func NewRouter(pingHandler handlers.IPingHandler,
-	authHandler handlers.IAuthHandler,
-	userHandler handlers.IUserHandler,
+	authHandler auth.IAuthHandler,
+	userHandler user.IUserHandler,
 
 ) *Router {
 	return &Router{

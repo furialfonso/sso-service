@@ -1,4 +1,4 @@
-package handlers
+package user
 
 import (
 	"bytes"
@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"cow_sso/api/dto/request"
-	"cow_sso/api/dto/response"
+	"cow_sso/api/handlers/user/request"
+	"cow_sso/api/handlers/user/response"
 	"cow_sso/mocks"
 
 	"github.com/gin-gonic/gin"
@@ -30,22 +30,32 @@ func Test_GetAll(t *testing.T) {
 	tests := []struct {
 		mocks       userMocks
 		name        string
+		token       string
 		expNickName int
 	}{
 		{
 			name: "error get users",
 			mocks: userMocks{
+				userHandler: func(f *mockUserHandler) {},
+			},
+			expNickName: http.StatusUnauthorized,
+		},
+		{
+			name:  "error get users",
+			token: "Bearer ABC",
+			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("GetAll", mock.Anything).Return([]response.UserResponse{}, errors.New("error x"))
+					f.userService.Mock.On("GetAll", mock.Anything, "ABC").Return([]response.UserResponse{}, errors.New("error x"))
 				},
 			},
 			expNickName: http.StatusInternalServerError,
 		},
 		{
-			name: "full flow",
+			name:  "full flow",
+			token: "Bearer ABC",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("GetAll", mock.Anything).Return([]response.UserResponse{}, nil)
+					f.userService.Mock.On("GetAll", mock.Anything, "ABC").Return([]response.UserResponse{}, nil)
 				},
 			},
 			expNickName: http.StatusOK,
@@ -65,6 +75,9 @@ func Test_GetAll(t *testing.T) {
 			})
 			res := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodGet, url, nil)
+			if tc.token != "" {
+				req.Header.Set("Authorization", tc.token)
+			}
 			engine.ServeHTTP(res, req)
 			assert.Equal(t, tc.expNickName, res.Code)
 		})
@@ -73,40 +86,51 @@ func Test_GetAll(t *testing.T) {
 
 func Test_GetByNickName(t *testing.T) {
 	tests := []struct {
-		mocks       userMocks
-		name        string
-		nickName    string
-		expNickName int
+		mocks    userMocks
+		name     string
+		nickName string
+		token    string
+		expCode  int
 	}{
 		{
+			name: "error get users",
+			mocks: userMocks{
+				userHandler: func(f *mockUserHandler) {},
+			},
+			expCode: http.StatusUnauthorized,
+		},
+		{
 			name:     "code not sending",
+			token:    "Bearer ABC",
 			nickName: "",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {},
 			},
-			expNickName: http.StatusBadRequest,
+			expCode: http.StatusBadRequest,
 		},
 		{
 			name:     "error getting user by id",
+			token:    "Bearer ABC",
 			nickName: "ABC",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("GetByNickName", mock.Anything, "ABC").Return(response.UserResponse{}, errors.New("x"))
+					f.userService.Mock.On("GetByNickName", mock.Anything, "ABC", "ABC").Return(response.UserResponse{}, errors.New("x"))
 				},
 			},
-			expNickName: http.StatusInternalServerError,
+			expCode: http.StatusInternalServerError,
 		},
 		{
 			name:     "full flow",
+			token:    "Bearer ABC",
 			nickName: "ABC",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("GetByNickName", mock.Anything, "ABC").Return(response.UserResponse{
+					f.userService.Mock.On("GetByNickName", mock.Anything, "ABC", "ABC").Return(response.UserResponse{
 						NickName: "ABC",
 					}, nil)
 				},
 			},
-			expNickName: http.StatusOK,
+			expCode: http.StatusOK,
 		},
 	}
 	for _, tc := range tests {
@@ -126,8 +150,11 @@ func Test_GetByNickName(t *testing.T) {
 			})
 			res := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodGet, url, nil)
+			if tc.token != "" {
+				req.Header.Set("Authorization", tc.token)
+			}
 			engine.ServeHTTP(res, req)
-			assert.Equal(t, tc.expNickName, res.Code)
+			assert.Equal(t, tc.expCode, res.Code)
 		})
 	}
 }
@@ -137,18 +164,28 @@ func Test_Create(t *testing.T) {
 		input   interface{}
 		mocks   userMocks
 		name    string
+		token   string
 		expCode int
 	}{
 		{
+			name: "error get users",
+			mocks: userMocks{
+				userHandler: func(f *mockUserHandler) {},
+			},
+			expCode: http.StatusUnauthorized,
+		},
+		{
 			name:  "error on input",
 			input: "ABC",
+			token: "Bearer ABC",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {},
 			},
 			expCode: http.StatusBadRequest,
 		},
 		{
-			name: "error creating user",
+			name:  "error creating user",
+			token: "Bearer ABC",
 			input: request.UserRequest{
 				Name:     "a",
 				NickName: "c",
@@ -157,7 +194,7 @@ func Test_Create(t *testing.T) {
 			},
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("Create", mock.Anything, request.UserRequest{
+					f.userService.Mock.On("Create", mock.Anything, "ABC", request.UserRequest{
 						Name:     "a",
 						NickName: "c",
 						Email:    "d",
@@ -168,7 +205,8 @@ func Test_Create(t *testing.T) {
 			expCode: http.StatusInternalServerError,
 		},
 		{
-			name: "full flow",
+			name:  "full flow",
+			token: "Bearer ABC",
 			input: request.UserRequest{
 				Name:     "a",
 				NickName: "c",
@@ -177,7 +215,7 @@ func Test_Create(t *testing.T) {
 			},
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("Create", mock.Anything, request.UserRequest{
+					f.userService.Mock.On("Create", mock.Anything, "ABC", request.UserRequest{
 						Name:     "a",
 						NickName: "c",
 						Email:    "d",
@@ -203,6 +241,9 @@ func Test_Create(t *testing.T) {
 			res := httptest.NewRecorder()
 			b, _ := json.Marshal(tc.input)
 			req := httptest.NewRequest(http.MethodPost, url, io.NopCloser(bytes.NewBuffer(b)))
+			if tc.token != "" {
+				req.Header.Set("Authorization", tc.token)
+			}
 			engine.ServeHTTP(res, req)
 			assert.Equal(t, tc.expCode, res.Code)
 		})
@@ -214,10 +255,19 @@ func Test_Delete(t *testing.T) {
 		mocks   userMocks
 		name    string
 		userID  string
+		token   string
 		expCode int
 	}{
 		{
-			name: "nick name isnt present",
+			name: "error get users",
+			mocks: userMocks{
+				userHandler: func(f *mockUserHandler) {},
+			},
+			expCode: http.StatusUnauthorized,
+		},
+		{
+			name:  "nick name isnt present",
+			token: "Bearer ABC",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {},
 			},
@@ -225,20 +275,22 @@ func Test_Delete(t *testing.T) {
 		},
 		{
 			name:   "nick name not found",
+			token:  "Bearer ABC",
 			userID: "abc",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("Delete", mock.Anything, "abc").Return("", errors.New("nick name not found"))
+					f.userService.Mock.On("Delete", mock.Anything, "ABC", "abc").Return("", errors.New("nick name not found"))
 				},
 			},
 			expCode: http.StatusInternalServerError,
 		},
 		{
 			name:   "full flow",
+			token:  "Bearer ABC",
 			userID: "abc",
 			mocks: userMocks{
 				userHandler: func(f *mockUserHandler) {
-					f.userService.Mock.On("Delete", mock.Anything, "abc").Return("test", nil)
+					f.userService.Mock.On("Delete", mock.Anything, "ABC", "abc").Return("test", nil)
 				},
 			},
 			expCode: http.StatusOK,
@@ -261,6 +313,9 @@ func Test_Delete(t *testing.T) {
 			})
 			res := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodDelete, url, nil)
+			if tc.token != "" {
+				req.Header.Set("Authorization", tc.token)
+			}
 			engine.ServeHTTP(res, req)
 			assert.Equal(t, tc.expCode, res.Code)
 		})

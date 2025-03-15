@@ -13,10 +13,10 @@
       "env": {
         "APPLICATION_NAME": "sso-service-local",
         "SCOPE": "local",
-        "PORT": "8080",
+        "PORT": "8082",
         "CONFIG_DIR": "${workspaceRoot}/pkg/config",
         "GIN_MODE": "release",
-        "KEYCLOAK_SECRET": "oaTcGuzVc80UyOOkL8m13TriEt7YYdNT"
+        "KEYCLOAK_SECRET": "7pljySAaUv7sgpJYpjJCwlIcMNxD2bBp"
       }
     },
     {
@@ -24,15 +24,16 @@
       "type": "go",
       "request": "launch",
       "mode": "test",
-      "program": "${workspaceRoot}/api/handlers/auth_handler_test.go",
+      "program": "${workspaceRoot}/pkg/services/user_service_test.go",
+      
       "env": {
-        "PORT": "8080",
+        "PORT": "8082",
         "CONFIG_DIR": "${workspaceRoot}/pkg/config",
         "GIN_MODE": "release",
-        "KEYCLOAK_SECRET": "5DMSyn3G6nEjNLwwy7gVijPK9mWUfjak"
+        "KEYCLOAK_SECRET": "7pljySAaUv7sgpJYpjJCwlIcMNxD2bBp"
       },
       "args": [
-        "Test_IsValidToken"
+        "Test_Delete"
       ],
     }
   ]

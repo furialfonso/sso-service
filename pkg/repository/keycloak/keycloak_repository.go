@@ -11,11 +11,10 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 )
 
-type IKeycloakService interface {
+type IKeycloakRepository interface {
 	Login(ctx context.Context, user string, password string) (*gocloak.JWT, error)
 	Logout(ctx context.Context, refreshToken string) error
 	IsValidToken(ctx context.Context, accessToken string) (bool, error)
-	CreateToken(ctx context.Context) (string, error)
 	GetUserByID(ctx context.Context, token string, userID string) (*gocloak.User, error)
 	GetAllUsers(ctx context.Context, token string) ([]*gocloak.User, error)
 	GetUserByNickName(ctx context.Context, token string, nickName string) (*gocloak.User, error)
@@ -24,18 +23,18 @@ type IKeycloakService interface {
 	DeleteUserByID(ctx context.Context, token string, userID string) error
 }
 
-type keycloakService struct {
+type keycloakRepository struct {
 	host   *gocloak.GoCloak
 	realm  string
 	client string
 	secret string
 }
 
-func NewKeycloakService() IKeycloakService {
+func NewKeycloakRepository() IKeycloakRepository {
 	host := gocloak.NewClient(config.Get().UString("keycloak.host"))
 	client := config.Get().UString("keycloak.client")
 	secret := os.Getenv("KEYCLOAK_SECRET")
-	return &keycloakService{
+	return &keycloakRepository{
 		host:   host,
 		realm:  config.Get().UString("keycloak.realm"),
 		client: client,
@@ -43,7 +42,7 @@ func NewKeycloakService() IKeycloakService {
 	}
 }
 
-func (k *keycloakService) Login(ctx context.Context, user string, password string) (*gocloak.JWT, error) {
+func (k *keycloakRepository) Login(ctx context.Context, user string, password string) (*gocloak.JWT, error) {
 	token, err := k.host.Login(ctx, k.client, k.secret, k.realm, user, password)
 	if err != nil {
 		return nil, errors.New("user or password incorrect")
@@ -51,7 +50,7 @@ func (k *keycloakService) Login(ctx context.Context, user string, password strin
 	return token, nil
 }
 
-func (k *keycloakService) Logout(ctx context.Context, refreshToken string) error {
+func (k *keycloakRepository) Logout(ctx context.Context, refreshToken string) error {
 	err := k.host.Logout(ctx, k.client, k.secret, k.realm, refreshToken)
 	if err != nil {
 		return errors.New("Invalid refresh token")
@@ -59,7 +58,7 @@ func (k *keycloakService) Logout(ctx context.Context, refreshToken string) error
 	return nil
 }
 
-func (k *keycloakService) IsValidToken(ctx context.Context, accessToken string) (bool, error) {
+func (k *keycloakRepository) IsValidToken(ctx context.Context, accessToken string) (bool, error) {
 	ret, err := k.host.RetrospectToken(ctx, accessToken, k.client, k.secret, k.realm)
 	if err != nil {
 		return false, err
@@ -68,26 +67,15 @@ func (k *keycloakService) IsValidToken(ctx context.Context, accessToken string) 
 	return *ret.Active, nil
 }
 
-func (k *keycloakService) CreateToken(ctx context.Context) (string, error) {
-	realm := config.Get().UString("keycloak.realm-admin")
-	user := config.Get().UString("keycloak.user")
-	password := config.Get().UString("keycloak.pass")
-	token, err := k.host.LoginAdmin(ctx, user, password, realm)
-	if err != nil {
-		return "", err
-	}
-	return token.AccessToken, nil
-}
-
-func (k *keycloakService) GetUserByID(ctx context.Context, token string, userID string) (*gocloak.User, error) {
+func (k *keycloakRepository) GetUserByID(ctx context.Context, token string, userID string) (*gocloak.User, error) {
 	return k.host.GetUserByID(ctx, token, k.realm, userID)
 }
 
-func (k *keycloakService) GetAllUsers(ctx context.Context, token string) ([]*gocloak.User, error) {
+func (k *keycloakRepository) GetAllUsers(ctx context.Context, token string) ([]*gocloak.User, error) {
 	return k.host.GetUsers(ctx, token, k.realm, gocloak.GetUsersParams{})
 }
 
-func (k *keycloakService) GetUserByNickName(ctx context.Context, token string, nickName string) (*gocloak.User, error) {
+func (k *keycloakRepository) GetUserByNickName(ctx context.Context, token string, nickName string) (*gocloak.User, error) {
 	users, err := k.host.GetUsers(ctx, token, k.realm, gocloak.GetUsersParams{
 		Username: &nickName,
 	})
@@ -102,11 +90,11 @@ func (k *keycloakService) GetUserByNickName(ctx context.Context, token string, n
 	return users[0], nil
 }
 
-func (k *keycloakService) GetRoleByID(ctx context.Context, token string, roleName string) (*gocloak.Role, error) {
+func (k *keycloakRepository) GetRoleByID(ctx context.Context, token string, roleName string) (*gocloak.Role, error) {
 	return k.host.GetRealmRole(ctx, token, k.realm, roleName)
 }
 
-func (k *keycloakService) CreateUser(ctx context.Context, token string, role *gocloak.Role, user gocloak.User) (string, error) {
+func (k *keycloakRepository) CreateUser(ctx context.Context, token string, role *gocloak.Role, user gocloak.User) (string, error) {
 	id, err := k.host.CreateUser(ctx, token, k.realm, user)
 	if err != nil {
 		return "", err
@@ -120,6 +108,6 @@ func (k *keycloakService) CreateUser(ctx context.Context, token string, role *go
 	return id, nil
 }
 
-func (k *keycloakService) DeleteUserByID(ctx context.Context, token string, userID string) error {
+func (k *keycloakRepository) DeleteUserByID(ctx context.Context, token string, userID string) error {
 	return k.host.DeleteUser(ctx, token, k.realm, userID)
 }
